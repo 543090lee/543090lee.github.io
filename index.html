@@ -925,7 +925,7 @@ function initMap() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const raw = await fetch('/api/restaurants').then(r => r.json());
+  const raw = await fetch('restaurants.json').then(r => r.json());
   data = raw.map((r, i) => ({ ...r, idx: i, overall: calcOverall(r), dateObj: parseDate(r.date) }));
 
   buildCards();
