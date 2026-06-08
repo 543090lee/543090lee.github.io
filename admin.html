@@ -391,6 +391,10 @@
     </div>
   </div>
   <div class="sidebar-list" id="sidebarList"></div>
+  <div style="padding:12px 10px;border-top:1px solid var(--border);">
+    <button class="btn btn-blue btn-full" id="pushBtn">↑ Push to GitHub</button>
+    <div id="pushStatus" style="font-size:11px;color:var(--tertiary);margin-top:7px;text-align:center;min-height:14px;"></div>
+  </div>
 </div>
 
 <!-- MAIN FORM -->
@@ -858,6 +862,31 @@ document.getElementById('saveBtn').addEventListener('click', saveRestaurant);
 document.getElementById('deleteBtn').addEventListener('click', deleteRestaurant);
 document.getElementById('newBtn').addEventListener('click', resetForm);
 document.getElementById('cancelBtn').addEventListener('click', resetForm);
+
+document.getElementById('pushBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('pushBtn');
+  const status = document.getElementById('pushStatus');
+  btn.disabled = true;
+  btn.textContent = 'Pushing…';
+  status.textContent = '';
+  status.style.color = 'var(--tertiary)';
+  try {
+    const res = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    const json = await res.json();
+    if (json.ok) {
+      status.textContent = json.message;
+      status.style.color = 'var(--green)';
+    } else {
+      status.textContent = json.error || 'Push failed.';
+      status.style.color = 'var(--accent)';
+    }
+  } catch (e) {
+    status.textContent = 'Network error.';
+    status.style.color = 'var(--accent)';
+  }
+  btn.disabled = false;
+  btn.textContent = '↑ Push to GitHub';
+});
 
 // Init
 buildSliders();

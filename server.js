@@ -91,6 +91,22 @@ app.delete('/api/restaurants/:idx', (req, res) => {
   }
 });
 
+app.post('/api/push', (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const opts = { cwd: __dirname, stdio: 'pipe' };
+    execSync('git add restaurants.json pictures/', opts);
+    const status = execSync('git status --porcelain', opts).toString().trim();
+    if (!status) return res.json({ ok: true, message: 'Nothing to push — already up to date.' });
+    const msg = req.body.message || `update restaurants ${new Date().toISOString().slice(0,10)}`;
+    execSync(`git commit -m ${JSON.stringify(msg)}`, opts);
+    execSync('git push', opts);
+    res.json({ ok: true, message: 'Pushed to GitHub successfully.' });
+  } catch (e) {
+    res.status(500).json({ error: e.stderr?.toString() || e.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n  Seungmo's Food Journal`);
   console.log(`  ─────────────────────────────────`);
