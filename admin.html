@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Journal — Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --primary: #1D1D1F;
+      --secondary: #6E6E73;
+      --tertiary: #AEAEB2;
+      --accent: #E8472A;
+      --blue: #007AFF;
+      --green: #34C759;
+      --purple: #BF5AF2;
+      --border: rgba(0,0,0,0.08);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-md: 0 5px 20px rgba(0,0,0,0.08);
+      --r: 12px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--primary); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+
+    body { display: flex; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+    }
+
+    .sidebar-head {
+      padding: 22px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-title { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 2px; }
+    .sidebar-sub { font-size: 12px; color: var(--tertiary); margin-bottom: 14px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      height: 34px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-blue    { background: var(--blue);   color: white; }
+    .btn-ghost   { background: rgba(0,0,0,0.06); color: var(--primary); }
+    .btn-danger  { background: rgba(255,59,48,0.1); color: #FF3B30; }
+    .btn-sm      { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    .sidebar-list { flex: 1; overflow-y: auto; padding: 8px 10px 16px; }
+    .sidebar-list::-webkit-scrollbar { width: 3px; }
+    .sidebar-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+    .r-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .r-item:hover { background: var(--bg); }
+    .r-item.selected { background: rgba(232,71,42,0.08); }
+
+    .r-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #FFF3E8, #FFE3CC);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .r-thumb img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .r-thumb img.loaded { display: block; }
+
+    .r-info { flex: 1; min-width: 0; }
+    .r-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .r-meta { font-size: 11px; color: var(--tertiary); }
+
+    .r-score {
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .r-score.hi { color: var(--green); }
+    .r-score.mid { color: #D9820A; }
+    .r-score.lo { color: var(--accent); }
+
+    /* ── MAIN FORM AREA ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .form-head {
+      padding: 22px 28px 16px;
+      background: rgba(245,245,247,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .form-head-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .form-head-actions { display: flex; gap: 8px; align-items: center; }
+
+    .form-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px 48px;
+    }
+
+    .form-scroll::-webkit-scrollbar { width: 3px; }
+    .form-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--tertiary);
+    }
+
+    input[type=text],
+    input[type=date],
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--primary);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+    textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23AEAEB2' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 9px;
+      padding-right: 28px;
+    }
+
+    /* Geocode search */
+    .geocode-wrap { position: relative; }
+
+    .geocode-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      overflow: hidden;
+      display: none;
+    }
+
+    .geocode-results.show { display: block; }
+
+    .geo-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .geo-item:last-child { border-bottom: none; }
+    .geo-item:hover { background: var(--bg); }
+
+    .geo-place { font-weight: 600; color: var(--primary); }
+    .geo-addr { font-size: 11.5px; color: var(--tertiary); margin-top: 2px; }
+
+    /* Photo grid */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .photo-tile {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #FFF3E8, #FFE3CC);
+    }
+
+    .photo-tile img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-tile .main-badge {
+      position: absolute;
+      bottom: 5px; left: 5px;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+
+    .photo-tile .remove-btn {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      color: white;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+
+    .photo-tile .remove-btn:hover { background: rgba(232,71,42,0.8); }
+
+    .photo-add-tile {
+      aspect-ratio: 1;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .photo-add-tile:hover, .photo-add-tile.drag { border-color: var(--blue); background: rgba(0,122,255,0.04); }
+    .photo-add-tile input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .photo-add-tile .add-icon { font-size: 22px; color: var(--tertiary); }
+    .photo-add-tile .add-label { font-size: 11px; color: var(--tertiary); }
+
+    .photo-hint { font-size: 11px; color: var(--tertiary); margin-top: 4px; }
+
+    /* Rating sliders */
+    .ratings-section { margin-bottom: 16px; }
+    .ratings-title { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tertiary); margin-bottom: 12px; }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .rating-label { font-size: 13px; color: var(--secondary); width: 110px; flex-shrink: 0; }
+
+    input[type=range] {
+      flex: 1;
+      height: 4px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .rating-val {
+      font-size: 14px;
+      font-weight: 700;
+      width: 32px;
+      text-align: right;
+      color: var(--primary);
+    }
+
+    /* Coord fields */
+    .coord-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* Status toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      padding: 12px 18px;
+      background: var(--primary);
+      color: white;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 999;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: var(--accent); }
+    .toast.success { background: var(--green); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 14px;
+    }
+
+    .hint { font-size: 11px; color: var(--tertiary); margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR: existing restaurants -->
+<div class="sidebar">
+  <div class="sidebar-head">
+    <div class="sidebar-title">Food Journal</div>
+    <div class="sidebar-sub">Admin Panel</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" id="newBtn">+ New</button>
+      <a href="/" style="text-decoration:none"><button class="btn btn-ghost">← Site</button></a>
+    </div>
+  </div>
+  <div class="sidebar-list" id="sidebarList"></div>
+</div>
+
+<!-- MAIN FORM -->
+<div class="main">
+  <div class="form-head">
+    <div class="form-head-title" id="formTitle">New Restaurant</div>
+    <div class="form-head-actions">
+      <button type="button" class="btn btn-danger btn-sm" id="deleteBtn" style="display:none">Delete</button>
+      <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="saveBtn">Save Restaurant</button>
+    </div>
+  </div>
+
+  <div class="form-scroll">
+    <form id="restaurantForm" autocomplete="off">
+
+      <!-- PHOTOS -->
+      <div class="form-section-title">Photos</div>
+      <div class="photo-grid" id="photoGrid">
+        <div class="photo-add-tile" id="photoAddTile">
+          <input type="file" id="photoInput" accept="image/*" multiple>
+          <div class="add-icon">+</div>
+          <div class="add-label">Add Photos</div>
+        </div>
+      </div>
+      <div class="photo-hint">First photo is the card thumbnail · AirDrop from iPhone → drag from Downloads</div>
+
+      <div class="divider"></div>
+
+      <!-- BASIC INFO -->
+      <div class="form-section-title">Basic Info</div>
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Search Restaurant (auto-fills location)</label>
+          <div class="geocode-wrap">
+            <input type="text" id="geoSearch" placeholder="e.g. Kali Restaurant Los Angeles">
+            <div class="geocode-results" id="geoResults"></div>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Full Name</label>
+          <input type="text" id="fullName" placeholder="Kali Restaurant" required>
+        </div>
+
+        <div class="field">
+          <label>Short Name (for card)</label>
+          <input type="text" id="name" placeholder="Kali" required>
+        </div>
+
+        <div class="field">
+          <label>ID (used for photo filename)</label>
+          <input type="text" id="rid" placeholder="kali">
+          <div class="hint">Letters & numbers only, no spaces — e.g. "kali"</div>
+        </div>
+
+        <div class="field">
+          <label>Cuisine</label>
+          <select id="cuisine">
+            <option>American</option>
+            <option>Chinese</option>
+            <option>French</option>
+            <option>Greek</option>
+            <option>Indian</option>
+            <option>Italian</option>
+            <option>Japanese</option>
+            <option>Korean</option>
+            <option>Mediterranean</option>
+            <option>Mexican</option>
+            <option>Middle Eastern</option>
+            <option>Spanish</option>
+            <option>Thai</option>
+            <option>Vietnamese</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select id="category">
+            <option>Casual Dining</option>
+            <option>Fine Dining</option>
+            <option>Dessert</option>
+            <option>Bakery & Café</option>
+            <option>Street Food</option>
+            <option>Bar & Grill</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Dish Type</label>
+          <input type="text" id="dish" placeholder="Hot Pot, Gelato, Modern…">
+        </div>
+
+        <div class="field">
+          <label>Date Visited</label>
+          <input type="date" id="date">
+        </div>
+
+        <div class="field full">
+          <label>Favorite Menu Item</label>
+          <input type="text" id="favoriteMenu" placeholder="Beef Hot Pot, Rose Gelato…">
+        </div>
+
+        <div class="field full">
+          <label>Thoughts / Notes</label>
+          <textarea id="thoughts" placeholder="What stood out? Would you go back?"></textarea>
+        </div>
+
+      </div>
+
+      <!-- LOCATION -->
+      <div class="divider"></div>
+      <div class="form-section-title">Location (auto-filled by search above)</div>
+      <div class="coord-row">
+        <div class="field">
+          <label>Latitude</label>
+          <input type="text" id="lat" placeholder="34.0613…">
+        </div>
+        <div class="field">
+          <label>Longitude</label>
+          <input type="text" id="lng" placeholder="-118.4464…">
+        </div>
+      </div>
+
+      <!-- RATINGS -->
+      <div class="divider"></div>
+      <div class="ratings-section">
+        <div class="form-section-title">Ratings (0 – 10)</div>
+        <div id="ratingSliders"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
+
+const RATING_KEYS = ['Flavor & Taste', 'Service', 'Creativity', 'Value', 'Ambiance'];
+const EMOJI = { Chinese:'🥢', Italian:'🍨', American:'🍔', French:'🥐', Thai:'🌶️',
+                Japanese:'🍜', Korean:'🥩', Mexican:'🌮', Indian:'🍛', Vietnamese:'🍲',
+                Greek:'🫒', Spanish:'🥘', Mediterranean:'🫙', 'Middle Eastern':'🧆',
+                'Bakery & Café':'☕', 'Street Food':'🌯', Other:'🍽️' };
+
+let restaurants = [];
+let editIdx = null;
+let existingPhotos = [];
+let newFiles = [];
+
+function scoreClass(s) { return s >= 7.5 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+function calcOverall(ratings) {
+  const v = Object.values(ratings);
+  return v.reduce((a, b) => a + b, 0) / v.length;
+}
+
+function parseFormDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return `${dt.getMonth()+1}/${dt.getDate()}/${String(dt.getFullYear()).slice(-2)}`;
+}
+
+function toInputDate(s) {
+  if (!s) return '';
+  const [m, d, y] = s.split('/').map(Number);
+  const year = y < 100 ? 2000 + y : y;
+  return `${year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function buildSliders() {
+  const wrap = document.getElementById('ratingSliders');
+  wrap.innerHTML = RATING_KEYS.map(key => `
+    <div class="rating-row">
+      <div class="rating-label">${key}</div>
+      <input type="range" min="0" max="10" step="0.5" value="7"
+        id="rating_${key.replace(/[^a-z]/gi,'_')}"
+        oninput="document.getElementById('val_${key.replace(/[^a-z]/gi,'_')}').textContent=this.value">
+      <div class="rating-val" id="val_${key.replace(/[^a-z]/gi,'_')}">7</div>
+    </div>`).join('');
+}
+
+function getRatings() {
+  const r = {};
+  RATING_KEYS.forEach(key => {
+    r[key] = parseFloat(document.getElementById(`rating_${key.replace(/[^a-z]/gi,'_')}`).value);
+  });
+  return r;
+}
+
+function setRatings(ratings) {
+  RATING_KEYS.forEach(key => {
+    const val = ratings[key] ?? 7;
+    const slider = document.getElementById(`rating_${key.replace(/[^a-z]/gi,'_')}`);
+    const label  = document.getElementById(`val_${key.replace(/[^a-z]/gi,'_')}`);
+    if (slider) { slider.value = val; label.textContent = val; }
+  });
+}
+
+async function loadRestaurants() {
+  const res = await fetch('/api/restaurants');
+  restaurants = await res.json();
+  renderSidebar();
+}
+
+function thumbSrc(r) {
+  if (r.photos?.length) return `pictures/${r.photos[0]}`;
+  return `pictures/${r.id}.jpg`;
+}
+
+function renderSidebar() {
+  const list = document.getElementById('sidebarList');
+  if (restaurants.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--tertiary);font-size:13px">No restaurants yet</div>';
+    return;
+  }
+  list.innerHTML = restaurants.map((r, i) => {
+    const overall = calcOverall(r.ratings);
+    const emoji = EMOJI[r.cuisine] || '🍽️';
+    const cls = scoreClass(overall);
+    return `
+      <div class="r-item${editIdx === i ? ' selected' : ''}" onclick="editRestaurant(${i})">
+        <div class="r-thumb">
+          <span>${emoji}</span>
+          <img src="${thumbSrc(r)}" onload="this.classList.add('loaded')" onerror="this.remove()">
+        </div>
+        <div class="r-info">
+          <div class="r-name">${r.name}</div>
+          <div class="r-meta">${r.cuisine} · ${r.category}</div>
+        </div>
+        <div class="r-score ${cls}">${overall.toFixed(1)}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photoGrid');
+  const tiles = [...existingPhotos.map((f, i) => `
+    <div class="photo-tile">
+      <img src="pictures/${f}" alt="">
+      ${i === 0 ? '<div class="main-badge">Main</div>' : ''}
+      <button type="button" class="remove-btn" onclick="removeExistingPhoto(${i})">✕</button>
+    </div>`),
+    ...newFiles.map((file, i) => `
+    <div class="photo-tile" id="newtile_${i}">
+      <img id="newimg_${i}" alt="">
+      ${existingPhotos.length + i === 0 ? '<div class="main-badge">Main</div>' : ''}
+      <button type="button" class="remove-btn" onclick="removeNewFile(${i})">✕</button>
+    </div>`)
+  ];
+  grid.innerHTML = tiles.join('') + `
+    <div class="photo-add-tile" id="photoAddTile">
+      <input type="file" id="photoInput" accept="image/*" multiple>
+      <div class="add-icon">+</div>
+      <div class="add-label">Add Photos</div>
+    </div>`;
+  // Preview new files
+  newFiles.forEach((file, i) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById(`newimg_${i}`);
+      if (img) img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  // Re-attach events
+  document.getElementById('photoInput').addEventListener('change', onPhotoInputChange);
+  const tile = document.getElementById('photoAddTile');
+  tile.addEventListener('dragover', e => { e.preventDefault(); tile.classList.add('drag'); });
+  tile.addEventListener('dragleave', () => tile.classList.remove('drag'));
+  tile.addEventListener('drop', e => { e.preventDefault(); tile.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+}
+
+function removeExistingPhoto(i) {
+  existingPhotos.splice(i, 1);
+  renderPhotoGrid();
+}
+
+function removeNewFile(i) {
+  newFiles.splice(i, 1);
+  renderPhotoGrid();
+}
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach(f => { if (f.type.startsWith('image/')) newFiles.push(f); });
+  renderPhotoGrid();
+}
+
+function onPhotoInputChange(e) {
+  addFiles(e.target.files);
+}
+
+function resetForm() {
+  editIdx = null;
+  existingPhotos = [];
+  newFiles = [];
+  document.getElementById('restaurantForm').reset();
+  document.getElementById('geoSearch').value = '';
+  document.getElementById('formTitle').textContent = 'New Restaurant';
+  document.getElementById('deleteBtn').style.display = 'none';
+  setRatings({});
+  renderPhotoGrid();
+  renderSidebar();
+}
+
+function editRestaurant(idx) {
+  editIdx = idx;
+  const r = restaurants[idx];
+
+  document.getElementById('formTitle').textContent = 'Edit Restaurant';
+  document.getElementById('deleteBtn').style.display = '';
+
+  document.getElementById('fullName').value = r.fullName || '';
+  document.getElementById('name').value = r.name || '';
+  document.getElementById('rid').value = r.id || '';
+  document.getElementById('cuisine').value = r.cuisine || 'American';
+  document.getElementById('category').value = r.category || 'Casual Dining';
+  document.getElementById('dish').value = r.dish || '';
+  document.getElementById('date').value = toInputDate(r.date);
+  document.getElementById('favoriteMenu').value = r.favoriteMenu || '';
+  document.getElementById('thoughts').value = r.thoughts || '';
+  document.getElementById('lat').value = r.location?.lat || '';
+  document.getElementById('lng').value = r.location?.lng || '';
+  document.getElementById('geoSearch').value = '';
+
+  existingPhotos = r.photos ? [...r.photos] : (r.id ? [`${r.id}.jpg`] : []);
+  newFiles = [];
+  renderPhotoGrid();
+
+  setRatings(r.ratings || {});
+  renderSidebar();
+
+  document.querySelector('.form-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function saveRestaurant() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const fullName = document.getElementById('fullName').value.trim();
+    const name     = document.getElementById('name').value.trim();
+    const rid      = document.getElementById('rid').value.trim().replace(/\s+/g, '_').toLowerCase();
+    const lat      = parseFloat(document.getElementById('lat').value);
+    const lng      = parseFloat(document.getElementById('lng').value);
+
+    if (!fullName || !name || !rid || isNaN(lat) || isNaN(lng)) {
+      showToast('Please fill in name, ID, and location', 'error');
+      return;
+    }
+
+    const r = {
+      name, fullName, id: rid,
+      cuisine: document.getElementById('cuisine').value,
+      category: document.getElementById('category').value,
+      dish: document.getElementById('dish').value.trim(),
+      date: parseFormDate(document.getElementById('date').value),
+      favoriteMenu: document.getElementById('favoriteMenu').value.trim(),
+      thoughts: document.getElementById('thoughts').value.trim(),
+      location: { lat, lng },
+      ratings: getRatings()
+    };
+
+    const fd = new FormData();
+    fd.append('data', JSON.stringify(r));
+    fd.append('existingPhotos', JSON.stringify(existingPhotos));
+    newFiles.forEach(f => fd.append('photos', f));
+
+    const url    = editIdx !== null ? `/api/restaurants/${editIdx}` : '/api/restaurants';
+    const method = editIdx !== null ? 'PUT' : 'POST';
+
+    const res = await fetch(url, { method, body: fd });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+
+    await loadRestaurants();
+    showToast(editIdx !== null ? 'Restaurant updated!' : 'Restaurant added!', 'success');
+    resetForm();
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Restaurant';
+  }
+}
+
+async function deleteRestaurant() {
+  if (editIdx === null) return;
+  if (!confirm(`Delete "${restaurants[editIdx].name}"?`)) return;
+  await fetch(`/api/restaurants/${editIdx}`, { method: 'DELETE' });
+  await loadRestaurants();
+  showToast('Deleted', '');
+  resetForm();
+}
+
+// Geocoding
+let geoTimer;
+document.getElementById('geoSearch').addEventListener('input', e => {
+  clearTimeout(geoTimer);
+  const q = e.target.value.trim();
+  if (q.length < 3) { document.getElementById('geoResults').className = 'geocode-results'; return; }
+  geoTimer = setTimeout(() => geocode(q), 400);
+});
+
+async function geocode(q) {
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN}&limit=5&types=poi,address`;
+  const res  = await fetch(url);
+  const json = await res.json();
+  const box  = document.getElementById('geoResults');
+
+  if (!json.features?.length) { box.className = 'geocode-results'; return; }
+
+  box.innerHTML = json.features.map((f, i) => `
+    <div class="geo-item" onclick="applyGeo(${i})">
+      <div class="geo-place">${f.text}</div>
+      <div class="geo-addr">${f.place_name}</div>
+    </div>`).join('');
+
+  box._features = json.features;
+  box.className = 'geocode-results show';
+}
+
+function applyGeo(i) {
+  const f = document.getElementById('geoResults')._features[i];
+  document.getElementById('lat').value = f.center[1].toFixed(8);
+  document.getElementById('lng').value = f.center[0].toFixed(8);
+  if (!document.getElementById('fullName').value) document.getElementById('fullName').value = f.text;
+  if (!document.getElementById('name').value) document.getElementById('name').value = f.text;
+  if (!document.getElementById('rid').value) document.getElementById('rid').value = f.text.toLowerCase().replace(/[^a-z0-9]/g,'');
+  document.getElementById('geoSearch').value = f.place_name;
+  document.getElementById('geoResults').className = 'geocode-results';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.geocode-wrap')) document.getElementById('geoResults').className = 'geocode-results';
+});
+
+// Auto-ID from full name
+document.getElementById('fullName').addEventListener('input', e => {
+  if (!document.getElementById('rid').value) {
+    document.getElementById('rid').value = e.target.value.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0, 20);
+  }
+  if (!document.getElementById('name').value) {
+    document.getElementById('name').value = e.target.value.split(' ').slice(0,3).join(' ');
+  }
+});
+
+
+// Buttons
+document.getElementById('saveBtn').addEventListener('click', saveRestaurant);
+document.getElementById('deleteBtn').addEventListener('click', deleteRestaurant);
+document.getElementById('newBtn').addEventListener('click', resetForm);
+document.getElementById('cancelBtn').addEventListener('click', resetForm);
+
+// Init
+buildSliders();
+renderPhotoGrid();
+loadRestaurants();
+</script>
+</body>
+</html>
