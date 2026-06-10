@@ -147,14 +147,17 @@
   {
     "name": "La Grande Boucherie",
     "fullName": "La Grande Boucherie",
+    "id": "lagrande",
+    "cuisine": "French",
+    "category": "Fine Dining",
+    "dish": "Brasserie",
+    "date": "3/30/24",
+    "favoriteMenu": "French Onion Soup",
+    "thoughts": "",
     "location": {
       "lat": 40.76262638421916,
       "lng": -73.98084378220159
     },
-    "cuisine": "French",
-    "dish": "Brasserie",
-    "date": "3/30/24",
-    "category": "Fine Dining",
     "ratings": {
       "Flavor & Taste": 7.5,
       "Service": 6,
@@ -162,21 +165,26 @@
       "Value": 3,
       "Ambiance": 6
     },
-    "favoriteMenu": "French Onion Soup",
-    "id": "lagrande",
-    "thoughts": ""
+    "photos": [
+      "lagrande.jpg",
+      "lagrande_2.jpg",
+      "lagrande_3.jpg"
+    ]
   },
   {
     "name": "Mitr Thai",
     "fullName": "Mitr Thai Restaurant",
+    "id": "mitrthai",
+    "cuisine": "Thai",
+    "category": "Casual Dining",
+    "dish": "Traditional Thai",
+    "date": "3/30/24",
+    "favoriteMenu": "Green Curry",
+    "thoughts": "",
     "location": {
       "lat": 40.75688604281783,
       "lng": -73.98042274661965
     },
-    "cuisine": "Thai",
-    "dish": "Traditional Thai",
-    "date": "3/30/24",
-    "category": "Casual Dining",
     "ratings": {
       "Flavor & Taste": 7.5,
       "Service": 6,
@@ -184,9 +192,10 @@
       "Value": 6,
       "Ambiance": 6.5
     },
-    "favoriteMenu": "Green Curry",
-    "id": "mitrthai",
-    "thoughts": ""
+    "photos": [
+      "mitrthai.jpg",
+      "mitrthai_2.jpg"
+    ]
   },
   {
     "name": "Olympos Naoussa",
