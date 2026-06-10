@@ -533,6 +533,110 @@
 
     .dp-fav-val { font-size: 14px; color: var(--primary); font-weight: 500; }
 
+    .dp-notes {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--secondary);
+      padding: 12px 14px;
+      background: var(--bg);
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    /* ════════════════════════════
+       TRAVEL BAR (floating on map)
+    ════════════════════════════ */
+    .travel-bar {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 320px;
+      max-width: calc(100% - 28px);
+    }
+
+    .travel-input-wrap { flex: 1; position: relative; }
+
+    .travel-input-wrap input {
+      width: 100%;
+      height: 40px;
+      padding: 0 14px 0 36px;
+      background: white;
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.18);
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--primary);
+      outline: none;
+    }
+    .travel-input-wrap input::placeholder { color: var(--tertiary); }
+
+    .travel-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--tertiary);
+      pointer-events: none;
+    }
+
+    .travel-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+      overflow: hidden;
+      display: none;
+    }
+    .travel-dropdown.show { display: block; }
+
+    .travel-opt { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.12s; }
+    .travel-opt:last-child { border-bottom: none; }
+    .travel-opt:hover { background: var(--bg); }
+    .travel-opt-name { font-size: 13px; font-weight: 600; color: var(--primary); }
+    .travel-opt-sub { font-size: 11px; color: var(--tertiary); margin-top: 2px; }
+
+    .travel-clear-btn {
+      height: 36px;
+      padding: 0 14px;
+      background: white;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.18);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+      display: none;
+      align-items: center;
+    }
+    .travel-clear-btn.show { display: flex; }
+
+    .travel-banner {
+      background: rgba(0,122,255,0.07);
+      border-bottom: 1px solid rgba(0,122,255,0.14);
+      padding: 7px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #007AFF;
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .travel-banner.show { display: flex; }
+
     /* ════════════════════════════
        MAP — Airbnb pill markers
     ════════════════════════════ */
@@ -553,10 +657,14 @@
 
     .map-pill:hover { transform: scale(1.06); box-shadow: 0 4px 14px rgba(0,0,0,0.22); }
 
+    .map-pill.score-hi  { background: var(--green);  color: white; box-shadow: 0 2px 8px rgba(40,167,69,0.35); }
+    .map-pill.score-mid { background: var(--orange); color: white; box-shadow: 0 2px 8px rgba(217,130,10,0.35); }
+    .map-pill.score-lo  { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(232,71,42,0.35); }
+
     .map-pill.active {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 4px 16px rgba(232,71,42,0.4);
+      background: var(--primary) !important;
+      color: white !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35) !important;
       transform: scale(1.1);
     }
 
@@ -631,6 +739,9 @@
     </div>
   </div>
 
+  <div class="travel-banner" id="travelBanner">
+    <span>📍</span><span id="travelBannerText"></span>
+  </div>
   <div class="result-count" id="resultCount"></div>
 
   <div class="list-wrap">
@@ -648,6 +759,18 @@
 <!-- RIGHT: map + sliding detail panel -->
 <div class="right">
   <div id="map"></div>
+
+  <!-- Travel destination search -->
+  <div class="travel-bar">
+    <div class="travel-input-wrap">
+      <svg class="travel-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="travelInput" placeholder="Explore a city or country…" autocomplete="off">
+      <div class="travel-dropdown" id="travelDropdown"></div>
+    </div>
+    <button class="travel-clear-btn" id="travelClear">✕ Clear</button>
+  </div>
 
   <div class="detail-panel" id="detailPanel">
     <div class="dp-photo-wrap">
@@ -678,6 +801,11 @@
         <span class="dp-fav-label">Favorite</span>
         <span class="dp-fav-val" id="dpFavVal"></span>
       </div>
+
+      <div id="dpNotesWrap" style="display:none">
+        <div class="dp-section-title" style="margin-top:20px;margin-bottom:8px">My Notes</div>
+        <div class="dp-notes" id="dpNotes"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -690,6 +818,12 @@ const EMOJI = { Chinese: '🥢', Italian: '🍨', American: '🍔', French: '�
                 German: '🥨', Brazilian: '🥩', Caribbean: '🌴', Filipino: '🍖',
                 Moroccan: '🫕', Peruvian: '🍋', Taiwanese: '🥟', Turkish: '🥙',
                 Other: '🍽️' };
+
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
+
+const CUISINE_MASTER = ['American','Brazilian','Caribbean','Chinese','Filipino','French','German',
+  'Greek','Indian','Italian','Japanese','Korean','Mediterranean','Mexican','Middle Eastern',
+  'Moroccan','Peruvian','Spanish','Taiwanese','Thai','Turkish','Vietnamese','Other'];
 
 const CAT_CLASS = {
   'Dessert':      'tag-dessert',
@@ -717,6 +851,7 @@ function scoreClass(s) { return s >= 7.5 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
 let data = [];
 let activeIdx = null;
 let map, markers = [];
+let travelBbox = null;
 
 function buildCards() {
   const list = document.getElementById('restaurantList');
@@ -765,7 +900,9 @@ function populateFilters() {
   const ySel = document.getElementById('yearFilter');
   years.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; ySel.appendChild(o); });
 
-  const cuisines = [...new Set(data.map(r => r.cuisine))].sort();
+  const dataCuisines = new Set(data.map(r => r.cuisine?.trim()).filter(Boolean));
+  const cuisines = [...new Set([...CUISINE_MASTER.filter(c => dataCuisines.has(c)),
+    ...[...dataCuisines].filter(c => !CUISINE_MASTER.includes(c))])].sort();
   const cSel = document.getElementById('cuisineFilter');
   cuisines.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; cSel.appendChild(o); });
 
@@ -788,6 +925,10 @@ function getFiltered() {
     if (year !== 'all' && r.dateObj.getFullYear().toString() !== year) return false;
     if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
     if (category !== 'all' && r.category !== category) return false;
+    if (travelBbox) {
+      const [w, s, e, n] = travelBbox;
+      if (r.location.lng < w || r.location.lng > e || r.location.lat < s || r.location.lat > n) return false;
+    }
     return true;
   });
 
@@ -905,6 +1046,14 @@ function populateDetail(r) {
     </div>`).join('');
 
   document.getElementById('dpFavVal').textContent = r.favoriteMenu;
+
+  const notesWrap = document.getElementById('dpNotesWrap');
+  if (r.thoughts) {
+    document.getElementById('dpNotes').textContent = r.thoughts;
+    notesWrap.style.display = '';
+  } else {
+    notesWrap.style.display = 'none';
+  }
 }
 
 function selectRestaurant(idx) {
@@ -932,7 +1081,7 @@ function closeDetail() {
 }
 
 function initMap() {
-  mapboxgl.accessToken = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
+  mapboxgl.accessToken = MAPBOX_TOKEN;
 
   map = new mapboxgl.Map({
     container: 'map',
@@ -950,7 +1099,7 @@ function initMap() {
 
     data.forEach(r => {
       const el = document.createElement('div');
-      el.className = 'map-pill';
+      el.className = `map-pill score-${scoreClass(r.overall)}`;
       el.textContent = r.overall.toFixed(1);
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
@@ -962,6 +1111,70 @@ function initMap() {
       markers.push(marker);
     });
   });
+}
+
+// ── TRAVEL FEATURE ──────────────────────────────
+let travelTimer;
+
+function drawTravelBbox(bbox) {
+  const [w, s, e, n] = bbox;
+  const geojson = { type: 'Feature', geometry: { type: 'Polygon',
+    coordinates: [[[w,s],[e,s],[e,n],[w,n],[w,s]]] } };
+  ['travel-fill','travel-border'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
+  if (map.getSource('travel-bbox')) map.removeSource('travel-bbox');
+  map.addSource('travel-bbox', { type: 'geojson', data: geojson });
+  map.addLayer({ id: 'travel-fill',   type: 'fill', source: 'travel-bbox',
+    paint: { 'fill-color': '#007AFF', 'fill-opacity': 0.07 } });
+  map.addLayer({ id: 'travel-border', type: 'line', source: 'travel-bbox',
+    paint: { 'line-color': '#007AFF', 'line-width': 2, 'line-opacity': 0.5, 'line-dasharray': [4,3] } });
+}
+
+async function searchTravel(q) {
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN}&limit=5&types=country,region,place,district`;
+  const res  = await fetch(url);
+  const json = await res.json();
+  const box  = document.getElementById('travelDropdown');
+  if (!json.features?.length) { box.className = 'travel-dropdown'; return; }
+  box.innerHTML = json.features.map((f, i) => `
+    <div class="travel-opt" onclick="applyTravel(${i})">
+      <div class="travel-opt-name">${f.text}</div>
+      <div class="travel-opt-sub">${f.place_name}</div>
+    </div>`).join('');
+  box._features = json.features;
+  box.className = 'travel-dropdown show';
+}
+
+function applyTravel(i) {
+  const f = document.getElementById('travelDropdown')._features[i];
+  document.getElementById('travelDropdown').className = 'travel-dropdown';
+  document.getElementById('travelInput').value = f.text;
+  document.getElementById('travelClear').classList.add('show');
+
+  if (f.bbox) {
+    travelBbox = f.bbox;
+    drawTravelBbox(f.bbox);
+    map.fitBounds(f.bbox, { padding: 80, duration: 1000 });
+  } else {
+    travelBbox = null;
+    map.flyTo({ center: f.center, zoom: 11, duration: 1000 });
+  }
+
+  document.getElementById('travelBannerText').textContent = `Restaurants near ${f.text}`;
+  document.getElementById('travelBanner').classList.add('show');
+  render();
+}
+
+function clearTravel() {
+  travelBbox = null;
+  document.getElementById('travelInput').value = '';
+  document.getElementById('travelClear').classList.remove('show');
+  document.getElementById('travelBanner').classList.remove('show');
+  ['travel-fill','travel-border'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
+  if (map.getSource('travel-bbox')) map.removeSource('travel-bbox');
+  render();
+  const bounds = new mapboxgl.LngLatBounds();
+  data.forEach(r => bounds.extend([r.location.lng, r.location.lat]));
+  map.fitBounds(bounds, { padding: 80, duration: 800 });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -985,6 +1198,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('yearFilter').addEventListener('change', render);
   document.getElementById('cuisineFilter').addEventListener('change', render);
   document.getElementById('categoryFilter').addEventListener('change', render);
+
+  document.getElementById('travelInput').addEventListener('input', e => {
+    clearTimeout(travelTimer);
+    const q = e.target.value.trim();
+    if (q.length < 2) { document.getElementById('travelDropdown').className = 'travel-dropdown'; return; }
+    travelTimer = setTimeout(() => searchTravel(q), 380);
+  });
+  document.getElementById('travelClear').addEventListener('click', clearTravel);
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.travel-input-wrap')) document.getElementById('travelDropdown').className = 'travel-dropdown';
+  });
 
   // Draggable resize
   const leftEl   = document.querySelector('.left');
