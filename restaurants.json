@@ -774,5 +774,32 @@
       "geugyeot_4.jpg",
       "geugyeot_5.jpg"
     ]
+  },
+  {
+    "name": "Mother Wolf",
+    "fullName": "Mother Wolf",
+    "id": "motherwolf",
+    "cuisine": "Italian",
+    "category": "Fine Dining",
+    "dish": "Italian",
+    "date": "12/12/25",
+    "favoriteMenu": "Prawns in Salsa Verde, Fiori di Zucca",
+    "thoughts": "squash blossom with ricotta was amazing. very delicate, mild flavor\nPrawns in salsa verde was also well grilled",
+    "location": {
+      "lat": 34.09932,
+      "lng": -118.33115
+    },
+    "ratings": {
+      "Flavor & Taste": 8,
+      "Service": 7.5,
+      "Creativity": 6.5,
+      "Value": 5,
+      "Ambiance": 7.5
+    },
+    "photos": [
+      "motherwolf.jpg",
+      "motherwolf_2.jpg",
+      "motherwolf_3.jpg"
+    ]
   }
 ]
