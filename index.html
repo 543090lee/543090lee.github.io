@@ -354,11 +354,13 @@
 
     .dp-photo-wrap {
       position: relative;
-      height: 300px;
+      aspect-ratio: 4/3;
+      max-height: 58vh;
       background: linear-gradient(135deg, #FFF3E8 0%, #FFE3CC 100%);
       flex-shrink: 0;
       overflow: hidden;
       border-radius: 28px 28px 0 0;
+      transition: aspect-ratio 0.25s ease;
     }
 
     .dp-emoji {
@@ -1058,11 +1060,18 @@ function showCarouselPhoto(photos, idx, emoji) {
   const dpNext  = document.getElementById('dpNext');
   const dpDots  = document.getElementById('dpPhotoDots');
 
+  const wrap = document.querySelector('.dp-photo-wrap');
   dpEmoji.style.display = 'flex';
   dpPhoto.className = 'dp-photo';
+  wrap.style.aspectRatio = '4/3'; // reset while next image loads
   dpPhoto.src = `pictures/${photos[idx]}`;
-  dpPhoto.onload  = () => { dpPhoto.classList.add('loaded'); dpEmoji.style.display = 'none'; };
-  dpPhoto.onerror = () => { dpEmoji.style.display = 'flex'; };
+  dpPhoto.onload = () => {
+    dpPhoto.classList.add('loaded');
+    dpEmoji.style.display = 'none';
+    if (dpPhoto.naturalWidth && dpPhoto.naturalHeight)
+      wrap.style.aspectRatio = (dpPhoto.naturalWidth / dpPhoto.naturalHeight).toFixed(4);
+  };
+  dpPhoto.onerror = () => { dpEmoji.style.display = 'flex'; wrap.style.aspectRatio = '4/3'; };
 
   dpPrev.classList.toggle('hidden', photos.length <= 1 || idx === 0);
   dpNext.classList.toggle('hidden', photos.length <= 1 || idx === photos.length - 1);
