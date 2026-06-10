@@ -801,5 +801,37 @@
       "motherwolf_2.jpg",
       "motherwolf_3.jpg"
     ]
+  },
+  {
+    "name": "The Little Door",
+    "fullName": "The Little Door",
+    "id": "thelittledoor",
+    "cuisine": "French",
+    "category": "Fine Dining",
+    "dish": "French",
+    "date": "6/9/26",
+    "favoriteMenu": "Escargot, Rack of Lamb",
+    "thoughts": "First of all, I really liked the interior of this restaurant. Service was exceptional.\nFrench onion soup was classic. Escargot with garlic butter went well with baguette. Really creamy.\nRack of Lamb with citrus agrodolce was phenomenal. citrus help cut the grease pretty well, and sundried tomato blended well into it.",
+    "location": {
+      "lat": 34.072132,
+      "lng": -118.367482
+    },
+    "ratings": {
+      "Flavor & Taste": 8.5,
+      "Service": 9,
+      "Creativity": 8,
+      "Value": 4.5,
+      "Ambiance": 8
+    },
+    "photos": [
+      "thelittledoor.jpg",
+      "thelittledoor_2.jpg",
+      "thelittledoor_3.jpg",
+      "thelittledoor_4.jpg",
+      "thelittledoor_5.jpg",
+      "thelittledoor_6.jpg",
+      "thelittledoor_7.jpg",
+      "thelittledoor_8.jpg"
+    ]
   }
 ]
