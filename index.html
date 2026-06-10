@@ -285,9 +285,28 @@
     .card-date { font-size: 11px; color: var(--tertiary); }
 
     /* ════════════════════════════
+       RESIZE HANDLE
+    ════════════════════════════ */
+    .resize-handle {
+      width: 5px;
+      flex-shrink: 0;
+      cursor: col-resize;
+      background: transparent;
+      position: relative;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .resize-handle::after {
+      content: '';
+      position: absolute;
+      inset: 0 -3px;
+    }
+    .resize-handle:hover, .resize-handle.dragging { background: var(--accent); }
+
+    /* ════════════════════════════
        RIGHT PANEL — 60%
     ════════════════════════════ */
-    .right { flex: 0 0 60%; position: relative; }
+    .right { flex: 1; position: relative; min-width: 0; }
     #map { width: 100%; height: 100%; }
 
     /* ════════════════════════════
@@ -529,7 +548,7 @@
       cursor: pointer;
       white-space: nowrap;
       user-select: none;
-      transition: transform 0.2s ease, background 0.15s, color 0.15s, box-shadow 0.2s;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     }
 
     .map-pill:hover { transform: scale(1.06); box-shadow: 0 4px 14px rgba(0,0,0,0.22); }
@@ -624,7 +643,9 @@
   </div>
 </div>
 
-<!-- RIGHT: 60% map + sliding detail panel -->
+<div class="resize-handle" id="resizeHandle"></div>
+
+<!-- RIGHT: map + sliding detail panel -->
 <div class="right">
   <div id="map"></div>
 
@@ -667,7 +688,7 @@ const EMOJI = { Chinese: '🥢', Italian: '🍨', American: '🍔', French: '�
                 Japanese: '🍜', Korean: '🥩', Mexican: '🌮', Indian: '🍛', Vietnamese: '🍲',
                 Greek: '🫒', Spanish: '🥘', Mediterranean: '🫙', 'Middle Eastern': '🧆',
                 German: '🥨', Brazilian: '🥩', Caribbean: '🌴', Filipino: '🍖',
-                Moroccan: '🫕', Peruvian: '🍋', Seafood: '🦞', Taiwanese: '🥟', Turkish: '🥙',
+                Moroccan: '🫕', Peruvian: '🍋', Taiwanese: '🥟', Turkish: '🥙',
                 Other: '🍽️' };
 
 const CAT_CLASS = {
@@ -964,6 +985,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('yearFilter').addEventListener('change', render);
   document.getElementById('cuisineFilter').addEventListener('change', render);
   document.getElementById('categoryFilter').addEventListener('change', render);
+
+  // Draggable resize
+  const leftEl   = document.querySelector('.left');
+  const handleEl = document.getElementById('resizeHandle');
+  const savedW   = localStorage.getItem('leftPanelPct');
+  if (savedW) leftEl.style.flex = `0 0 ${savedW}%`;
+
+  let resizing = false;
+  handleEl.addEventListener('mousedown', e => {
+    resizing = true;
+    handleEl.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    const pct = Math.min(Math.max((e.clientX / window.innerWidth) * 100, 22), 68);
+    leftEl.style.flex = `0 0 ${pct}%`;
+  });
+  document.addEventListener('mouseup', () => {
+    if (!resizing) return;
+    resizing = false;
+    handleEl.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    const pct = parseFloat(leftEl.style.flex.split(' ')[2]);
+    if (!isNaN(pct)) localStorage.setItem('leftPanelPct', pct.toFixed(1));
+  });
 });
 </script>
 </body>
