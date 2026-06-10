@@ -127,9 +127,10 @@
       height: 100%;
       overflow-y: auto;
       padding: 10px 13px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      align-content: start;
     }
 
     .restaurant-list::-webkit-scrollbar { width: 3px; }
@@ -163,8 +164,7 @@
       border: 1.5px solid transparent;
       cursor: pointer;
       display: flex;
-      align-items: stretch;
-      min-height: 110px;
+      flex-direction: column;
       transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.18s;
     }
 
@@ -177,7 +177,8 @@
 
     .card-thumb {
       position: relative;
-      width: 120px;
+      width: 100%;
+      height: 150px;
       flex-shrink: 0;
       background: linear-gradient(135deg, #FFF3E8 0%, #FFE3CC 100%);
       overflow: hidden;
@@ -255,18 +256,19 @@
     .tag-casual  { color: #5E5CE6; background: rgba(94,92,230,0.1); }
 
     .card-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       letter-spacing: -0.2px;
       line-height: 1.3;
       color: var(--primary);
       margin-bottom: 2px;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .card-dish { font-size: 12px; color: var(--secondary); margin-bottom: 9px; }
+    .card-dish { font-size: 11px; color: var(--secondary); margin-bottom: 7px; }
 
     .card-footer { display: flex; align-items: center; justify-content: space-between; }
 
@@ -933,6 +935,29 @@ function populateFilters() {
   cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; catSel.appendChild(o); });
 }
 
+function levenshtein(a, b) {
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  const dp = Array.from({length: a.length + 1}, (_, i) =>
+    Array.from({length: b.length + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[a.length][b.length];
+}
+
+function fuzzyMatch(q, r) {
+  const haystack = [r.name, r.fullName, r.cuisine, r.dish, r.category,
+    r.thoughts || '', r.favoriteMenu || ''].join(' ').toLowerCase();
+  const haystackWords = haystack.split(/\W+/).filter(Boolean);
+  const queryWords = q.toLowerCase().split(/\s+/).filter(Boolean);
+  return queryWords.every(qw => {
+    if (haystack.includes(qw)) return true;
+    const maxDist = qw.length <= 3 ? 0 : qw.length <= 5 ? 1 : 2;
+    return maxDist > 0 && haystackWords.some(hw => levenshtein(qw, hw) <= maxDist);
+  });
+}
+
 function getFiltered() {
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const year = document.getElementById('yearFilter').value;
@@ -941,9 +966,7 @@ function getFiltered() {
   const sort = document.getElementById('sortSelect').value;
 
   let res = data.filter(r => {
-    if (q && !r.name.toLowerCase().includes(q) && !r.fullName.toLowerCase().includes(q)
-      && !r.cuisine.toLowerCase().includes(q) && !r.dish.toLowerCase().includes(q)
-      && !r.category.toLowerCase().includes(q)) return false;
+    if (q && !fuzzyMatch(q, r)) return false;
     if (year !== 'all' && r.dateObj.getFullYear().toString() !== year) return false;
     if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
     if (category !== 'all' && r.category !== category) return false;
