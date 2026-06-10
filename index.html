@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seungmo's Food Journal</title>
+  <title>Seungmo's Foodie Journal</title>
   <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet'>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -121,7 +121,7 @@
 
     .result-count { padding: 8px 18px 2px; font-size: 11.5px; color: var(--tertiary); flex-shrink: 0; }
 
-    .list-wrap { flex: 1; position: relative; overflow: hidden; }
+    .list-wrap { flex: 1; min-height: 0; position: relative; overflow: hidden; }
 
     .restaurant-list {
       height: 100%;
@@ -579,7 +579,7 @@
 <div class="left">
   <div class="panel-head">
     <div class="brand">
-      <div class="brand-title">Seungmo's Food Journal</div>
+      <div class="brand-title">Seungmo's Foodie Journal</div>
       <div class="brand-sub">Places I've eaten, rated, and remembered.</div>
     </div>
     <div class="search-wrap">
@@ -594,6 +594,11 @@
         <option value="date-desc">Newest First</option>
         <option value="date-asc">Oldest First</option>
         <option value="name-asc">A → Z</option>
+        <option value="flavor-desc">Best Flavor</option>
+        <option value="service-desc">Best Service</option>
+        <option value="creativity-desc">Most Creative</option>
+        <option value="value-desc">Best Value</option>
+        <option value="ambiance-desc">Best Ambiance</option>
       </select>
       <select class="filter-select" id="yearFilter">
         <option value="all">All Years</option>
@@ -660,7 +665,10 @@
 <script>
 const EMOJI = { Chinese: '🥢', Italian: '🍨', American: '🍔', French: '🥐', Thai: '🌶️',
                 Japanese: '🍜', Korean: '🥩', Mexican: '🌮', Indian: '🍛', Vietnamese: '🍲',
-                Greek: '🫒', Spanish: '🥘', Mediterranean: '🫙', 'Middle Eastern': '🧆', Other: '🍽️' };
+                Greek: '🫒', Spanish: '🥘', Mediterranean: '🫙', 'Middle Eastern': '🧆',
+                German: '🥨', Brazilian: '🥩', Caribbean: '🌴', Filipino: '🍖',
+                Moroccan: '🫕', Peruvian: '🍋', Seafood: '🦞', Taiwanese: '🥟', Turkish: '🥙',
+                Other: '🍽️' };
 
 const CAT_CLASS = {
   'Dessert':      'tag-dessert',
@@ -762,11 +770,22 @@ function getFiltered() {
     return true;
   });
 
+  const ratingKey = {
+    'flavor-desc': 'Flavor & Taste',
+    'service-desc': 'Service',
+    'creativity-desc': 'Creativity',
+    'value-desc': 'Value',
+    'ambiance-desc': 'Ambiance'
+  };
   res.sort((a, b) => {
     if (sort === 'score-desc') return b.overall - a.overall;
     if (sort === 'date-desc') return b.dateObj - a.dateObj;
     if (sort === 'date-asc') return a.dateObj - b.dateObj;
     if (sort === 'name-asc') return a.name.localeCompare(b.name);
+    if (ratingKey[sort]) {
+      const key = ratingKey[sort];
+      return (b.ratings?.[key] ?? 0) - (a.ratings?.[key] ?? 0);
+    }
     return 0;
   });
 
