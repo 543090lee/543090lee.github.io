@@ -852,6 +852,7 @@ let data = [];
 let activeIdx = null;
 let map, markers = [];
 let travelBbox = null;
+let travelGeojson = null;
 
 function buildCards() {
   const list = document.getElementById('restaurantList');
@@ -928,6 +929,7 @@ function getFiltered() {
     if (travelBbox) {
       const [w, s, e, n] = travelBbox;
       if (r.location.lng < w || r.location.lng > e || r.location.lat < s || r.location.lat > n) return false;
+      if (travelGeojson && !pointInGeoJSON(r.location.lng, r.location.lat, travelGeojson)) return false;
     }
     return true;
   });
@@ -1116,56 +1118,74 @@ function initMap() {
 // ── TRAVEL FEATURE ──────────────────────────────
 let travelTimer;
 
-function drawTravelBbox(bbox) {
-  const [w, s, e, n] = bbox;
-  const geojson = { type: 'Feature', geometry: { type: 'Polygon',
-    coordinates: [[[w,s],[e,s],[e,n],[w,n],[w,s]]] } };
+// Point-in-polygon (ray casting) for actual boundary filtering
+function pointInRing(lng, lat, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if (((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi))
+      inside = !inside;
+  }
+  return inside;
+}
+
+function pointInGeoJSON(lng, lat, geojson) {
+  if (geojson.type === 'Polygon') return pointInRing(lng, lat, geojson.coordinates[0]);
+  if (geojson.type === 'MultiPolygon') return geojson.coordinates.some(p => pointInRing(lng, lat, p[0]));
+  return false;
+}
+
+function drawTravelPolygon(geojson) {
   ['travel-fill','travel-border'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
   if (map.getSource('travel-bbox')) map.removeSource('travel-bbox');
-  map.addSource('travel-bbox', { type: 'geojson', data: geojson });
-  map.addLayer({ id: 'travel-fill',   type: 'fill', source: 'travel-bbox',
+  map.addSource('travel-bbox', { type: 'geojson', data: { type: 'Feature', geometry: geojson } });
+  map.addLayer({ id: 'travel-fill', type: 'fill', source: 'travel-bbox',
     paint: { 'fill-color': '#007AFF', 'fill-opacity': 0.07 } });
   map.addLayer({ id: 'travel-border', type: 'line', source: 'travel-bbox',
-    paint: { 'line-color': '#007AFF', 'line-width': 2, 'line-opacity': 0.5, 'line-dasharray': [4,3] } });
+    paint: { 'line-color': '#007AFF', 'line-width': 2, 'line-opacity': 0.55, 'line-dasharray': [4,3] } });
 }
 
 async function searchTravel(q) {
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN}&limit=5&types=country,region,place,district`;
-  const res  = await fetch(url);
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&polygon_geojson=1&polygon_threshold=0.005&limit=6`;
+  const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
   const json = await res.json();
-  const box  = document.getElementById('travelDropdown');
-  if (!json.features?.length) { box.className = 'travel-dropdown'; return; }
-  box.innerHTML = json.features.map((f, i) => `
-    <div class="travel-opt" onclick="applyTravel(${i})">
-      <div class="travel-opt-name">${f.text}</div>
-      <div class="travel-opt-sub">${f.place_name}</div>
-    </div>`).join('');
-  box._features = json.features;
+  const valid = json.filter(f => f.geojson && ['Polygon','MultiPolygon'].includes(f.geojson.type));
+  const box   = document.getElementById('travelDropdown');
+  if (!valid.length) { box.className = 'travel-dropdown'; return; }
+  box.innerHTML = valid.map((f, i) => {
+    const name = f.name || f.display_name.split(',')[0].trim();
+    return `<div class="travel-opt" onclick="applyTravel(${i})">
+      <div class="travel-opt-name">${name}</div>
+      <div class="travel-opt-sub">${f.display_name}</div>
+    </div>`;
+  }).join('');
+  box._features = valid;
   box.className = 'travel-dropdown show';
 }
 
 function applyTravel(i) {
-  const f = document.getElementById('travelDropdown')._features[i];
+  const f    = document.getElementById('travelDropdown')._features[i];
+  const name = f.name || f.display_name.split(',')[0].trim();
   document.getElementById('travelDropdown').className = 'travel-dropdown';
-  document.getElementById('travelInput').value = f.text;
+  document.getElementById('travelInput').value = name;
   document.getElementById('travelClear').classList.add('show');
 
-  if (f.bbox) {
-    travelBbox = f.bbox;
-    drawTravelBbox(f.bbox);
-    map.fitBounds(f.bbox, { padding: 80, duration: 1000 });
-  } else {
-    travelBbox = null;
-    map.flyTo({ center: f.center, zoom: 11, duration: 1000 });
-  }
+  travelGeojson = f.geojson;
+  // Nominatim bbox: [minLat, maxLat, minLng, maxLng]
+  const bb = f.boundingbox.map(Number);
+  travelBbox = [bb[2], bb[0], bb[3], bb[1]]; // → [minLng, minLat, maxLng, maxLat]
 
-  document.getElementById('travelBannerText').textContent = `Restaurants near ${f.text}`;
+  drawTravelPolygon(f.geojson);
+  map.fitBounds([[bb[2], bb[0]], [bb[3], bb[1]]], { padding: 60, duration: 1000 });
+
+  document.getElementById('travelBannerText').textContent = `Restaurants near ${name}`;
   document.getElementById('travelBanner').classList.add('show');
   render();
 }
 
 function clearTravel() {
   travelBbox = null;
+  travelGeojson = null;
   document.getElementById('travelInput').value = '';
   document.getElementById('travelClear').classList.remove('show');
   document.getElementById('travelBanner').classList.remove('show');
