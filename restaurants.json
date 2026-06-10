@@ -896,7 +896,7 @@
     "dish": "Makguksoo",
     "date": "8/11/25",
     "favoriteMenu": "들기름막국수 & 수육",
-    "thoughts": "you will have the best 들기름막국수 here. Hands down",
+    "thoughts": "you will have the best 들기름막국수 here. Hands down\nAlready my fifth time here",
     "location": {
       "lat": 37.359993,
       "lng": 127.040094
@@ -910,6 +910,34 @@
     },
     "photos": [
       "gogirimakguksu.jpg"
+    ]
+  },
+  {
+    "name": "Élephante",
+    "fullName": "Élephante",
+    "id": "lephante",
+    "cuisine": "Italian",
+    "category": "Casual Dining",
+    "dish": "Italian",
+    "date": "6/9/25",
+    "favoriteMenu": "Whipped Eggpplant Dip w Pita",
+    "thoughts": "The appetizer, whipped eggplant dip w pita, was lovely.\nI liked vongole pasta's deep seafood flavor. Fusilli pesto pasta was too creamy.",
+    "location": {
+      "lat": 34.015237,
+      "lng": -118.497993
+    },
+    "ratings": {
+      "Flavor & Taste": 7,
+      "Service": 4,
+      "Creativity": 6,
+      "Value": 5,
+      "Ambiance": 7
+    },
+    "photos": [
+      "lephante.jpg",
+      "lephante_2.jpg",
+      "lephante_3.jpg",
+      "lephante_4.jpg"
     ]
   }
 ]
