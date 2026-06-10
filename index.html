@@ -310,28 +310,47 @@
     #map { width: 100%; height: 100%; }
 
     /* ════════════════════════════
-       DETAIL PANEL (slides in from right)
+       DETAIL PANEL — floating Apple card
     ════════════════════════════ */
+    .dp-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.26);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 190;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .dp-backdrop.open { opacity: 1; pointer-events: all; }
+
     .detail-panel {
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 380px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -46%) scale(0.92);
+      width: min(400px, calc(100% - 40px));
+      max-height: calc(100vh - 80px);
       background: var(--surface);
-      box-shadow: -8px 0 48px rgba(0,0,0,0.16);
-      transform: translateX(105%);
-      transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+      border-radius: 28px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.28), 0 10px 30px rgba(0,0,0,0.12);
       overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
       z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.44s cubic-bezier(0.34, 1.38, 0.64, 1), opacity 0.28s ease;
       display: flex;
       flex-direction: column;
     }
-
-    .detail-panel.open { transform: translateX(0); }
-
-    .detail-panel::-webkit-scrollbar { width: 3px; }
-    .detail-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+    .detail-panel::-webkit-scrollbar { display: none; }
+    .detail-panel.open {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      pointer-events: all;
+    }
 
     .dp-photo-wrap {
       position: relative;
@@ -339,6 +358,7 @@
       background: linear-gradient(135deg, #FFF3E8 0%, #FFE3CC 100%);
       flex-shrink: 0;
       overflow: hidden;
+      border-radius: 28px 28px 0 0;
     }
 
     .dp-emoji {
@@ -772,6 +792,7 @@
     <button class="travel-clear-btn" id="travelClear">✕ Clear</button>
   </div>
 
+  <div class="dp-backdrop" id="dpBackdrop"></div>
   <div class="detail-panel" id="detailPanel">
     <div class="dp-photo-wrap">
       <button class="dp-close" id="dpClose">✕</button>
@@ -884,8 +905,8 @@ function buildCards() {
         </div>
         <div class="card-footer">
           <div>
-            <span class="score-big ${cls}">${sc}</span>
-            <span class="score-ten">/ 10</span>
+            <span class="score-big ${cls}" id="card-score-${r.idx}">${sc}</span>
+            <span class="score-ten" id="card-score-lbl-${r.idx}">/ 10</span>
           </div>
           <div class="card-date">${fmtDate(r.date)}</div>
         </div>
@@ -982,6 +1003,27 @@ function render() {
 
   document.getElementById('noResults').classList.toggle('show', filtered.length === 0);
   markers.forEach(m => { m.getElement().style.opacity = visSet.has(m._idx) ? '1' : '0.3'; });
+
+  // Update card scores to reflect active rating sort
+  const sort = document.getElementById('sortSelect').value;
+  const SORT_KEY = { 'flavor-desc':'Flavor & Taste', 'service-desc':'Service',
+    'creativity-desc':'Creativity', 'value-desc':'Value', 'ambiance-desc':'Ambiance' };
+  const activeKey = SORT_KEY[sort];
+  data.forEach(r => {
+    const scoreEl = document.getElementById(`card-score-${r.idx}`);
+    const lblEl   = document.getElementById(`card-score-lbl-${r.idx}`);
+    if (!scoreEl) return;
+    if (activeKey) {
+      const val = r.ratings?.[activeKey] ?? 0;
+      scoreEl.textContent = val.toFixed(1);
+      scoreEl.className = `score-big ${scoreClass(val)}`;
+      lblEl.textContent = activeKey === 'Flavor & Taste' ? 'Flavor' : activeKey;
+    } else {
+      scoreEl.textContent = r.overall.toFixed(1);
+      scoreEl.className = `score-big ${scoreClass(r.overall)}`;
+      lblEl.textContent = '/ 10';
+    }
+  });
 }
 
 let carouselPhotos = [];
@@ -1073,6 +1115,7 @@ function selectRestaurant(idx) {
 
   populateDetail(r);
   document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('dpBackdrop').classList.add('open');
 }
 
 function closeDetail() {
@@ -1080,6 +1123,7 @@ function closeDetail() {
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   markers.forEach(m => m.getElement().classList.remove('active'));
   document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('dpBackdrop').classList.remove('open');
 }
 
 function initMap() {
@@ -1207,6 +1251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initMap();
 
   document.getElementById('dpClose').addEventListener('click', closeDetail);
+  document.getElementById('dpBackdrop').addEventListener('click', closeDetail);
   document.getElementById('dpPrev').addEventListener('click', () => {
     if (carouselIdx > 0) showCarouselPhoto(carouselPhotos, carouselIdx - 1);
   });
