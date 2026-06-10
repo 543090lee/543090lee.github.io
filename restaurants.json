@@ -700,7 +700,7 @@
       "Flavor & Taste": 8.5,
       "Service": 8.5,
       "Creativity": 7.5,
-      "Value": 7,
+      "Value": 6.5,
       "Ambiance": 7.5
     },
     "photos": [
@@ -832,6 +832,84 @@
       "thelittledoor_6.jpg",
       "thelittledoor_7.jpg",
       "thelittledoor_8.jpg"
+    ]
+  },
+  {
+    "name": "OKDONGSIK New York",
+    "fullName": "OKDONGSIK New York",
+    "id": "okdongsiknewyork",
+    "cuisine": "Korean",
+    "category": "Casual Dining",
+    "dish": "Gukbab",
+    "date": "9/14/25",
+    "favoriteMenu": "돼지국밥 & 김치만두",
+    "thoughts": "돼지국밥 had a delicate but deep flavor. \n김치만두 was exceptional. Must try",
+    "location": {
+      "lat": 40.745653,
+      "lng": -73.985401
+    },
+    "ratings": {
+      "Flavor & Taste": 7.5,
+      "Service": 5,
+      "Creativity": 5,
+      "Value": 4.5,
+      "Ambiance": 6.5
+    },
+    "photos": [
+      "okdongsiknewyork.jpg",
+      "okdongsiknewyork_2.jpg"
+    ]
+  },
+  {
+    "name": "Piccola Cucina Estiatorio",
+    "fullName": "Piccola Cucina Estiatorio",
+    "id": "piccolacucinaestiato",
+    "cuisine": "Italian",
+    "category": "Casual Dining",
+    "dish": "Italian",
+    "date": "9/15/25",
+    "favoriteMenu": "Fusilloni Di Gragnano Con Scampi",
+    "thoughts": "Probably best scampi sauce-based pasta I have ever had.\nAlso ordered Cotoletta di pollo alla milanese (cutlet chicken). Nothing special",
+    "location": {
+      "lat": 40.724626,
+      "lng": -74.003048
+    },
+    "ratings": {
+      "Flavor & Taste": 8,
+      "Service": 6,
+      "Creativity": 6,
+      "Value": 4.5,
+      "Ambiance": 7
+    },
+    "photos": [
+      "piccolacucinaestiato.jpg",
+      "piccolacucinaestiato_2.jpg",
+      "piccolacucinaestiato_3.jpg"
+    ]
+  },
+  {
+    "name": "Gogiri Makguksu",
+    "fullName": "Gogiri Makguksu 고기리 막국수",
+    "id": "gogirimakguksu",
+    "cuisine": "Korean",
+    "category": "Casual Dining",
+    "dish": "Makguksoo",
+    "date": "8/11/25",
+    "favoriteMenu": "들기름막국수 & 수육",
+    "thoughts": "you will have the best 들기름막국수 here. Hands down",
+    "location": {
+      "lat": 37.359993,
+      "lng": 127.040094
+    },
+    "ratings": {
+      "Flavor & Taste": 9,
+      "Service": 6,
+      "Creativity": 6,
+      "Value": 9,
+      "Ambiance": 8
+    },
+    "photos": [
+      "gogirimakguksu.jpg"
     ]
   }
 ]
