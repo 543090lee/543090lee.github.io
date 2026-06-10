@@ -846,7 +846,7 @@ function calcOverall(r) {
   return v.reduce((a, b) => a + b, 0) / v.length;
 }
 
-function scoreClass(s) { return s >= 7.5 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
+function scoreClass(s) { return s >= 7.0 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
 
 let data = [];
 let activeIdx = null;
