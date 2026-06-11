@@ -335,7 +335,7 @@
        DETAIL PANEL — floating Apple card
     ════════════════════════════ */
     .dp-backdrop {
-      position: absolute;
+      position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.26);
       backdrop-filter: blur(5px);
@@ -348,7 +348,7 @@
     .dp-backdrop.open { opacity: 1; pointer-events: all; }
 
     .detail-panel {
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -46%) scale(0.92);
@@ -743,6 +743,70 @@
     .popup-score-num.mid { color: var(--orange); }
     .popup-score-num.lo { color: var(--accent); }
     .popup-score-denom { font-size: 12px; color: var(--tertiary); }
+
+    /* ════════════════════════════
+       MOBILE — stacked List ⇄ Map
+    ════════════════════════════ */
+    .view-toggle { display: none; }
+
+    @media (max-width: 768px) {
+      body { display: block; }
+      .resize-handle { display: none; }
+
+      .left, .right {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        flex: none !important;
+        border-right: none;
+      }
+      .left  { z-index: 2; }
+      .right { z-index: 1; }
+
+      /* one view at a time, switched by the floating toggle */
+      body:not(.view-map) .right { display: none; }
+      body.view-map .left { display: none; }
+
+      .panel-head { padding-top: 16px; }
+      .restaurant-list { padding-bottom: 90px; }
+
+      /* floating switcher */
+      .view-toggle {
+        display: flex;
+        position: fixed;
+        z-index: 120;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        align-items: center;
+        gap: 8px;
+        height: 46px;
+        padding: 0 22px;
+        border: none;
+        border-radius: 23px;
+        background: var(--primary);
+        color: #fff;
+        font-family: var(--font);
+        font-size: 14.5px;
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.32);
+        cursor: pointer;
+      }
+      .view-toggle:active { transform: translateX(-50%) scale(0.96); }
+      .vt-icon { width: 18px; height: 18px; }
+
+      /* hide switcher while a detail card is open */
+      body.detail-open .view-toggle { display: none; }
+
+      /* full-bleed detail card on small screens */
+      .detail-panel { width: calc(100% - 24px); border-radius: 22px; }
+      .dp-photo-wrap { border-radius: 22px 22px 0 0; }
+
+      /* keep travel bar clear of the map controls */
+      .travel-bar { top: 12px; width: calc(100% - 24px); }
+    }
   </style>
 </head>
 <body>
@@ -824,7 +888,16 @@
     </div>
     <button class="travel-clear-btn" id="travelClear">✕ Clear</button>
   </div>
+</div>
 
+<!-- Mobile-only view switcher (List ⇄ Map) -->
+<button class="view-toggle" id="viewToggle" aria-label="Toggle list and map">
+  <svg class="vt-icon vt-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+  <svg class="vt-icon vt-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+  <span class="vt-label">Map</span>
+</button>
+
+<!-- Detail overlay — top-level layer so it covers the full viewport (incl. mobile) -->
   <div class="dp-backdrop" id="dpBackdrop"></div>
   <div class="detail-panel" id="detailPanel">
     <div class="dp-photo-wrap">
@@ -862,7 +935,6 @@
       </div>
     </div>
   </div>
-</div>
 
 <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
 <script>
@@ -1189,6 +1261,7 @@ function selectRestaurant(idx) {
   populateDetail(r);
   document.getElementById('detailPanel').classList.add('open');
   document.getElementById('dpBackdrop').classList.add('open');
+  document.body.classList.add('detail-open');
 }
 
 function closeDetail() {
@@ -1197,6 +1270,7 @@ function closeDetail() {
   markers.forEach(m => m.getElement().classList.remove('active'));
   document.getElementById('detailPanel').classList.remove('open');
   document.getElementById('dpBackdrop').classList.remove('open');
+  document.body.classList.remove('detail-open');
 }
 
 function initMap() {
@@ -1347,6 +1421,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('click', e => {
     if (!e.target.closest('.travel-input-wrap')) document.getElementById('travelDropdown').className = 'travel-dropdown';
   });
+
+  // Mobile List ⇄ Map toggle
+  const viewToggle = document.getElementById('viewToggle');
+  let mapShownOnce = false;
+  function syncToggle() {
+    const isMap = document.body.classList.contains('view-map');
+    viewToggle.querySelector('.vt-map').style.display  = isMap ? 'none' : '';
+    viewToggle.querySelector('.vt-list').style.display = isMap ? '' : 'none';
+    viewToggle.querySelector('.vt-label').textContent  = isMap ? 'List' : 'Map';
+  }
+  viewToggle.addEventListener('click', () => {
+    const toMap = !document.body.classList.contains('view-map');
+    document.body.classList.toggle('view-map', toMap);
+    syncToggle();
+    if (toMap && map) {
+      requestAnimationFrame(() => {
+        map.resize();
+        if (!mapShownOnce) {                       // first reveal: size was 0, so refit
+          mapShownOnce = true;
+          const b = new mapboxgl.LngLatBounds();
+          data.forEach(r => b.extend([r.location.lng, r.location.lat]));
+          if (!b.isEmpty()) map.fitBounds(b, { padding: 50, duration: 0 });
+        }
+      });
+    }
+  });
+  syncToggle();
 
   // Draggable resize
   const leftEl   = document.querySelector('.left');
