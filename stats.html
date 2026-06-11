@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Food Wrapped · Seungmo's Journal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    html, body { height: 100%; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { font-family: var(--font); background: #000; color: #fff; user-select: none; -webkit-user-select: none; }
+
+    /* ── Deck ── */
+    .deck { position: fixed; inset: 0; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 88px 30px 64px;
+      opacity: 0; visibility: hidden;
+      pointer-events: none;
+      background-size: 180% 180%;
+      transition: opacity 0.55s var(--ease), visibility 0.55s;
+    }
+    .slide.active { opacity: 1; visibility: visible; pointer-events: auto; animation: bgdrift 14s ease-in-out infinite alternate; }
+
+    @keyframes bgdrift { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+
+    /* gradient themes */
+    .g-intro  { background-image: radial-gradient(120% 120% at 20% 10%, #FF6B52 0%, #E8472A 38%, #8E1E0F 100%); }
+    .g-red    { background-image: linear-gradient(150deg, #FF7A5C 0%, #E8472A 55%, #B0260F 100%); }
+    .g-blue   { background-image: linear-gradient(150deg, #5AC8FA 0%, #0A84FF 52%, #0040A8 100%); }
+    .g-purple { background-image: linear-gradient(150deg, #D78CFF 0%, #BF5AF2 50%, #6E1DA8 100%); }
+    .g-green  { background-image: linear-gradient(150deg, #6FE89A 0%, #28A745 52%, #0E6B26 100%); }
+    .g-orange { background-image: linear-gradient(150deg, #FFC15E 0%, #F0900E 52%, #9C5600 100%); }
+    .g-ink    { background-image: radial-gradient(120% 120% at 80% 0%, #3A3A3F 0%, #1D1D1F 45%, #000 100%); }
+
+    /* ── Reveal animations (play when slide is .active) ── */
+    .r { opacity: 0; }
+    .slide.active .r { animation: rise 0.75s var(--ease) both; animation-delay: var(--d, 0s); }
+    @keyframes rise { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+
+    .pop { opacity: 0; }
+    .slide.active .pop { animation: pop 0.9s var(--pop) both; animation-delay: var(--d, 0s); }
+    @keyframes pop { 0% { opacity: 0; transform: scale(0.55); } 55% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+
+    /* ── Typography ── */
+    .kicker { font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; opacity: 0.82; margin-bottom: 22px; }
+    .lead { font-size: clamp(22px, 6vw, 34px); font-weight: 600; letter-spacing: -0.4px; line-height: 1.25; max-width: 16ch; }
+    .lead.tight { margin-bottom: 6px; }
+    .big {
+      font-size: clamp(92px, 30vw, 240px); font-weight: 800; letter-spacing: -7px; line-height: 0.9;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 14px 50px rgba(0,0,0,0.28);
+    }
+    .big.sm { font-size: clamp(70px, 22vw, 180px); letter-spacing: -5px; }
+    .sub { font-size: clamp(16px, 4.4vw, 22px); font-weight: 500; opacity: 0.9; line-height: 1.4; max-width: 22ch; margin-top: 14px; }
+    .name-xl { font-size: clamp(34px, 9vw, 72px); font-weight: 800; letter-spacing: -2px; line-height: 1.05; max-width: 14ch; }
+    .spacer-sm { height: 14px; } .spacer-md { height: 26px; }
+
+    .title-stack { display: flex; flex-direction: column; align-items: center; }
+    .wrapped-1 { font-size: clamp(40px, 12vw, 92px); font-weight: 800; letter-spacing: -3px; line-height: 0.95; }
+    .wrapped-2 { font-size: clamp(40px, 12vw, 92px); font-weight: 800; letter-spacing: -3px; line-height: 0.95; -webkit-text-stroke: 1.5px rgba(255,255,255,0.92); color: transparent; }
+
+    /* ── Ranked list ── */
+    .rlist { width: min(440px, 100%); margin-top: 26px; }
+    .ritem { display: flex; align-items: center; gap: 16px; padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,0.18); }
+    .ritem:last-child { border-bottom: none; }
+    .rno { font-size: 22px; font-weight: 800; width: 30px; flex-shrink: 0; opacity: 0.7; font-variant-numeric: tabular-nums; }
+    .rname { flex: 1; text-align: left; min-width: 0; }
+    .rname b { display: block; font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rname span { font-size: 12.5px; opacity: 0.72; }
+    .rscore { font-size: 24px; font-weight: 800; letter-spacing: -1px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+    /* ── Axis bars ── */
+    .axes { width: min(440px, 100%); margin-top: 30px; }
+    .axis { margin-bottom: 16px; }
+    .axis:last-child { margin-bottom: 0; }
+    .axis-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+    .axis-top b { font-size: 15px; font-weight: 600; }
+    .axis-top span { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .axis-track { height: 9px; background: rgba(255,255,255,0.22); border-radius: 6px; overflow: hidden; }
+    .axis-fill { height: 100%; width: 0; border-radius: 6px; background: rgba(255,255,255,0.95); transition: width 1.1s var(--ease); transition-delay: var(--d, 0.2s); }
+
+    /* ── Awards grid ── */
+    .awards { width: min(540px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+    .award { background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2); border-radius: 18px; padding: 16px 16px; text-align: left; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .award-cat { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; opacity: 0.85; margin-bottom: 8px; }
+    .award-name { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.15; }
+    .award-sub { font-size: 12.5px; opacity: 0.78; margin-top: 4px; }
+
+    /* ── Country bubbles ── */
+    .bubble-field { position: relative; width: min(560px, 100%); height: clamp(240px, 38vh, 380px); margin-top: 22px; }
+    .bubble {
+      position: absolute; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 8px; line-height: 1.05;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.42);
+      box-shadow: inset 0 2px 14px rgba(255,255,255,0.3), 0 12px 32px rgba(0,0,0,0.2);
+      backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+      opacity: 0;
+    }
+    .bubble b { font-weight: 800; letter-spacing: -0.3px; }
+    .bubble span { font-size: 0.6em; opacity: 0.85; margin-top: 4px; font-weight: 600; }
+    .slide.active .bubble {
+      animation: bubIn 0.7s var(--ease) both var(--din),
+                 floaty var(--dur) ease-in-out var(--din) infinite alternate;
+    }
+    @keyframes bubIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes floaty {
+      0%   { transform: translate(0, 0); }
+      50%  { transform: translate(var(--dx), calc(var(--dy) * -1)); }
+      100% { transform: translate(calc(var(--dx) * -1), var(--dy)); }
+    }
+
+    /* ── Progress segments ── */
+    .progress { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; gap: 5px; padding: 14px 16px; }
+    .seg { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.28); overflow: hidden; cursor: pointer; }
+    .seg i { display: block; height: 100%; width: 0; background: #fff; border-radius: 3px; transition: width 0.4s var(--ease); }
+    .seg.done i { width: 100%; }
+    .seg.now i { width: 100%; }
+
+    /* ── Nav hint + buttons ── */
+    .hint { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 40; font-size: 12.5px; font-weight: 600; letter-spacing: 0.5px; opacity: 0.7; pointer-events: none; }
+    .slide.active .hint-r { animation: rise 0.7s var(--ease) both; animation-delay: 1.1s; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 26px; border-radius: 30px;
+      background: #fff; color: #1D1D1F;
+      font-size: 15px; font-weight: 700; text-decoration: none; cursor: pointer; border: none;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.3);
+      transition: transform 0.18s var(--ease);
+    }
+    .btn:hover { transform: translateY(-2px) scale(1.02); }
+    .btn svg { width: 16px; height: 16px; }
+
+    .corner-exit { position: fixed; top: 12px; right: 14px; z-index: 60; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); text-decoration: none; transition: background 0.2s; }
+    .corner-exit:hover { background: rgba(0,0,0,0.5); }
+
+    @media (max-width: 560px) {
+      .awards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <a class="corner-exit" href="index.html" title="Back to Journal" id="exitBtn">✕</a>
+  <div class="deck" id="deck"></div>
+  <div class="hint"><span class="hint-r">Tap to continue</span></div>
+
+  <script>
+    const AXES = ['Flavor & Taste', 'Service', 'Creativity', 'Value', 'Ambiance'];
+    const parseDate = s => { const [m,d,y] = s.split('/').map(Number); return new Date(y<100?2000+y:y, m-1, d); };
+    const calcOverall = r => { const v = Object.values(r.ratings); return v.reduce((a,b)=>a+b,0)/v.length; };
+    const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+    // BigDataCloud returns ISO-style names ("United States of America (the)"). Make them friendly.
+    const COUNTRY_ALIAS = {
+      'United States of America': 'United States',
+      'Korea (the Republic of)': 'South Korea',
+      'Korea (the Democratic People\'s Republic of)': 'North Korea',
+      'United Kingdom of Great Britain and Northern Ireland': 'United Kingdom',
+      'Russian Federation': 'Russia',
+      'Taiwan (Province of China)': 'Taiwan',
+      'Viet Nam': 'Vietnam',
+      'Czechia': 'Czech Republic',
+    };
+    function tidyCountry(name) {
+      if (!name) return null;
+      name = name.replace(/\s*\(the\)$/, '').trim();
+      return COUNTRY_ALIAS[name] || name;
+    }
+
+    fetch('restaurants.json').then(r => r.json()).then(async raw => {
+      const data = raw.map(r => ({ ...r, overall: calcOverall(r), dateObj: parseDate(r.date) }));
+      await resolveCountries(data);
+      buildDeck(data);
+    });
+
+    // Reverse-geocode each place to a country (free, no key). Cached in localStorage,
+    // deduped to ~0.1° (~11km) so it's a few requests, not one per restaurant.
+    async function resolveCountries(data) {
+      let cache = {};
+      try { cache = JSON.parse(localStorage.getItem('countryCache') || '{}'); } catch (e) {}
+      const keyOf = r => `${r.location.lat.toFixed(1)},${r.location.lng.toFixed(1)}`;
+      const need = [...new Set(data.map(keyOf))].filter(k => !(k in cache));
+
+      await Promise.all(need.map(async k => {
+        const [lat, lng] = k.split(',');
+        try {
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+          const j = await res.json();
+          cache[k] = tidyCountry(j.countryName);
+        } catch (e) { cache[k] = null; }
+      }));
+
+      try { localStorage.setItem('countryCache', JSON.stringify(cache)); } catch (e) {}
+      data.forEach(r => { r.country = cache[keyOf(r)] || null; });
+    }
+
+    function buildDeck(data) {
+      const n = data.length;
+      const avg = data.reduce((a,r) => a + r.overall, 0) / n;
+      const sorted = [...data].sort((a,b) => b.overall - a.overall);
+      const cuisines = [...new Set(data.map(r => r.cuisine).filter(Boolean))];
+      const years = [...new Set(data.map(r => r.dateObj.getFullYear()))].sort();
+      const yearSpan = years.length > 1 ? `${years[0]} — ${years[years.length-1]}` : `${years[0]}`;
+
+      // cuisine counts + averages
+      const cuMap = new Map();
+      data.forEach(r => { const k = r.cuisine || 'Other'; if(!cuMap.has(k)) cuMap.set(k, []); cuMap.get(k).push(r.overall); });
+      const cuArr = [...cuMap.entries()].map(([key, arr]) => ({ key, count: arr.length, avg: arr.reduce((a,b)=>a+b,0)/arr.length }));
+      const goTo = [...cuArr].sort((a,b) => b.count - a.count)[0];
+      const beloved = [...cuArr].filter(c => c.count >= 2).sort((a,b) => b.avg - a.avg)[0] || goTo;
+
+      // axis averages
+      const axisAvg = AXES.map(ax => ({ ax, avg: data.reduce((a,r) => a + (r.ratings[ax] ?? 0), 0) / n })).sort((a,b) => b.avg - a.avg);
+      const generous = axisAvg[0], tough = axisAvg[axisAvg.length-1];
+
+      const bestAxis = ax => [...data].sort((a,b) => (b.ratings[ax]??0) - (a.ratings[ax]??0))[0];
+
+      const top = sorted[0];
+
+      const slides = [];
+
+      // 1 — INTRO
+      slides.push({ cls: 'g-intro', html: `
+        <div class="kicker r" style="--d:.1s">Seungmo's Foodie Journal</div>
+        <div class="title-stack">
+          <div class="wrapped-1 pop" style="--d:.2s">FOOD</div>
+          <div class="wrapped-2 pop" style="--d:.38s">WRAPPED</div>
+        </div>
+        <div class="sub r" style="--d:.7s">${esc(yearSpan)} · A look back at everywhere you ate.</div>
+      `});
+
+      // 2 — PLACES
+      slides.push({ cls: 'g-red', html: `
+        <div class="lead tight r" style="--d:.1s">You sat down at</div>
+        <div class="big pop" style="--d:.25s" data-count="${n}">0</div>
+        <div class="lead r" style="--d:.55s">restaurants</div>
+        <div class="sub r" style="--d:.75s">…and rated every single one of them.</div>
+      `});
+
+      // 3 — CUISINES
+      slides.push({ cls: 'g-blue', html: `
+        <div class="lead tight r" style="--d:.1s">Your palate traveled across</div>
+        <div class="big pop" style="--d:.25s" data-count="${cuisines.length}">0</div>
+        <div class="lead r" style="--d:.55s">different cuisines</div>
+        <div class="sub r" style="--d:.75s">From ${esc(cuArr.length ? cuArr.map(c=>c.key).slice(0,3).join(', ') : '')} and beyond.</div>
+      `});
+
+      // 4 — COUNTRIES (floating bubbles)
+      const coMap = new Map();
+      data.forEach(r => { if (r.country) coMap.set(r.country, (coMap.get(r.country) || 0) + 1); });
+      const countryArr = [...coMap.entries()].map(([key, count]) => ({ key, count })).sort((a,b) => b.count - a.count);
+      if (countryArr.length) {
+        const maxC = Math.max(...countryArr.map(c => c.count));
+        const N = countryArr.length;
+        const bubbles = countryArr.map((c, i) => {
+          const size = Math.round(98 + Math.sqrt(c.count / maxC) * 92); // 98–190px
+          const ang = (-90 + i * (360 / N)) * Math.PI / 180;
+          const Rx = N === 1 ? 0 : 35, Ry = N === 1 ? 0 : 29;
+          const cx = (50 + Rx * Math.cos(ang)).toFixed(1);
+          const cy = (50 + Ry * Math.sin(ang)).toFixed(1);
+          const dx = (6 + Math.random() * 12).toFixed(0);
+          const dy = (6 + Math.random() * 12).toFixed(0);
+          const dur = (6.5 + Math.random() * 4).toFixed(1);
+          const din = (0.3 + i * 0.12).toFixed(2);
+          return `<div class="bubble" style="width:${size}px;height:${size}px;left:${cx}%;top:${cy}%;`
+            + `margin-left:${-size/2}px;margin-top:${-size/2}px;font-size:${Math.max(13, size*0.135).toFixed(0)}px;`
+            + `--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--din:${din}s">`
+            + `<b>${esc(c.key)}</b><span>${c.count} place${c.count > 1 ? 's' : ''}</span></div>`;
+        }).join('');
+        slides.push({ cls: 'g-green', html: `
+          <div class="kicker r" style="--d:.1s">Your appetite carried a passport</div>
+          <div class="name-xl pop" style="--d:.25s" data-count="${N}">0</div>
+          <div class="lead r" style="--d:.5s">countries, one bite at a time</div>
+          <div class="bubble-field">${bubbles}</div>
+        `});
+      }
+
+      // 4 — GO-TO CUISINE
+      slides.push({ cls: 'g-orange', html: `
+        <div class="kicker r" style="--d:.1s">Your comfort zone</div>
+        <div class="name-xl pop" style="--d:.25s">${esc(goTo.key)}</div>
+        <div class="sub r" style="--d:.6s">You came back <b>${goTo.count}</b> times — more than any other kind of food.</div>
+      `});
+
+      // 5 — #1 REVEAL
+      slides.push({ cls: 'g-purple', html: `
+        <div class="kicker r" style="--d:.1s">Your number one of all time</div>
+        <div class="name-xl pop" style="--d:.28s">${esc(top.name)}</div>
+        <div class="spacer-md"></div>
+        <div class="big sm pop" style="--d:.55s" data-count="${top.overall.toFixed(1)}" data-dec="1">0.0</div>
+        <div class="sub r" style="--d:.85s">${esc(top.cuisine)} · ${esc(top.dish)}</div>
+      `});
+
+      // 6 — TOP 5
+      slides.push({ cls: 'g-ink', html: `
+        <div class="kicker r" style="--d:.1s">The Hall of Fame</div>
+        <div class="lead r" style="--d:.2s">Your five highest-rated bites</div>
+        <div class="rlist">
+          ${sorted.slice(0,5).map((r,i) => `
+            <div class="ritem r" style="--d:${0.35 + i*0.13}s">
+              <div class="rno">${i+1}</div>
+              <div class="rname"><b>${esc(r.name)}</b><span>${esc(r.cuisine)} · ${esc(r.dish)}</span></div>
+              <div class="rscore">${r.overall.toFixed(1)}</div>
+            </div>`).join('')}
+        </div>
+      `});
+
+      // 7 — SCORING PERSONALITY
+      slides.push({ cls: 'g-green', html: `
+        <div class="kicker r" style="--d:.1s">Your scoring personality</div>
+        <div class="lead r" style="--d:.2s">Generous with <b>${esc(generous.ax)}</b>, ruthless on <b>${esc(tough.ax)}</b>.</div>
+        <div class="axes">
+          ${axisAvg.map((a,i) => `
+            <div class="axis r" style="--d:${0.35 + i*0.1}s">
+              <div class="axis-top"><b>${esc(a.ax)}</b><span>${a.avg.toFixed(1)}</span></div>
+              <div class="axis-track"><div class="axis-fill" style="--d:${0.5 + i*0.1}s" data-w="${(a.avg/10*100).toFixed(1)}"></div></div>
+            </div>`).join('')}
+        </div>
+      `});
+
+      // 8 — AVERAGE
+      slides.push({ cls: 'g-red', html: `
+        <div class="lead tight r" style="--d:.1s">On average, you scored a place</div>
+        <div class="big pop" style="--d:.25s" data-count="${avg.toFixed(1)}" data-dec="1">0.0</div>
+        <div class="lead r" style="--d:.55s">out of 10</div>
+        <div class="sub r" style="--d:.75s">A tough but fair critic.</div>
+      `});
+
+      // 9 — AWARDS
+      const awards = [
+        ['Best Value', bestAxis('Value'), r => `Value ${r.ratings['Value']}/10`],
+        ['Most Creative', bestAxis('Creativity'), r => `Creativity ${r.ratings['Creativity']}/10`],
+        ['Best Service', bestAxis('Service'), r => `Service ${r.ratings['Service']}/10`],
+        ['Best Flavor', bestAxis('Flavor & Taste'), r => `Flavor ${r.ratings['Flavor & Taste']}/10`],
+        ['Best Ambiance', bestAxis('Ambiance'), r => `Ambiance ${r.ratings['Ambiance']}/10`],
+        ['Most Beloved Cuisine', null, () => `${beloved.key} · ${beloved.avg.toFixed(1)} avg`],
+      ];
+      slides.push({ cls: 'g-blue', html: `
+        <div class="kicker r" style="--d:.1s">And the awards go to</div>
+        <div class="awards">
+          ${awards.map(([cat, r, sub], i) => `
+            <div class="award r" style="--d:${0.25 + i*0.1}s">
+              <div class="award-cat">${esc(cat)}</div>
+              <div class="award-name">${esc(r ? r.name : beloved.key)}</div>
+              <div class="award-sub">${esc(sub(r))}</div>
+            </div>`).join('')}
+        </div>
+      `});
+
+      // 10 — OUTRO
+      slides.push({ cls: 'g-intro', html: `
+        <div class="kicker r" style="--d:.1s">That's a wrap</div>
+        <div class="lead r" style="--d:.25s" >${n} places. ${cuisines.length} cuisines.<br>Countless bites.</div>
+        <div class="spacer-md"></div>
+        <div class="r" style="--d:.6s"><a class="btn" href="index.html" data-stop>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to the Journal
+        </a></div>
+      `});
+
+      // ── render ──
+      const deck = document.getElementById('deck');
+      const progress = document.getElementById('progress');
+      deck.innerHTML = slides.map(s => `<section class="slide ${s.cls}">${s.html}</section>`).join('');
+      progress.innerHTML = slides.map(() => `<div class="seg"><i></i></div>`).join('');
+
+      const slideEls = [...deck.querySelectorAll('.slide')];
+      const segEls = [...progress.querySelectorAll('.seg')];
+      let cur = -1;
+
+      function go(i) {
+        i = Math.max(0, Math.min(slides.length - 1, i));
+        if (i === cur) return;
+        cur = i;
+        slideEls.forEach((el, k) => {
+          // restart animations by toggling active fresh
+          el.classList.remove('active');
+          if (k === i) { void el.offsetWidth; el.classList.add('active'); }
+        });
+        segEls.forEach((el, k) => { el.classList.toggle('done', k < i); el.classList.toggle('now', k === i); });
+        // count-ups + bar fills handled via active class; run counters:
+        runCounters(slideEls[i]);
+      }
+
+      function runCounters(slide) {
+        slide.querySelectorAll('[data-count]').forEach(el => {
+          const to = parseFloat(el.dataset.count);
+          const dec = parseInt(el.dataset.dec || '0', 10);
+          const start = performance.now(), dur = 1100, delay = 250;
+          const tick = now => {
+            const t = Math.min(1, Math.max(0, (now - start - delay) / dur));
+            const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
+            el.textContent = (to * e).toFixed(dec);
+            if (t < 1) requestAnimationFrame(tick);
+            else el.textContent = to.toFixed(dec);
+          };
+          el.textContent = (0).toFixed(dec);
+          requestAnimationFrame(tick);
+        });
+        // bar fills read --w
+        slide.querySelectorAll('.axis-fill').forEach(el => { el.style.width = el.dataset.w + '%'; });
+      }
+
+      // ── navigation ──
+      const next = () => go(cur + 1);
+      const prev = () => go(cur - 1);
+
+      deck.addEventListener('click', e => {
+        if (e.target.closest('[data-stop]')) return;          // let buttons work
+        const x = e.clientX / window.innerWidth;
+        if (x < 0.3) prev(); else next();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        else if (e.key === 'ArrowLeft') prev();
+        else if (e.key === 'Escape') location.href = 'index.html';
+      });
+      segEls.forEach((el, k) => el.addEventListener('click', e => { e.stopPropagation(); go(k); }));
+
+      // swipe
+      let sx = 0;
+      deck.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+      deck.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) > 45) { dx < 0 ? next() : prev(); }
+      }, { passive: true });
+
+      go(0);
+    }
+  </script>
+</body>
+</html>

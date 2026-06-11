@@ -53,6 +53,28 @@
 
     .brand { margin-bottom: 16px; }
 
+    .brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+    .stats-link {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+      padding: 0 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+    }
+    .stats-link svg { width: 13px; height: 13px; }
+    .stats-link:hover { background: var(--accent-soft); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
     .brand-title {
       font-size: 26px;
       font-weight: 700;
@@ -378,10 +400,11 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }
 
-    .dp-photo.loaded { display: block; }
+    .dp-photo.loaded { opacity: 1; }
 
     .dp-close {
       position: absolute;
@@ -728,8 +751,16 @@
 <div class="left">
   <div class="panel-head">
     <div class="brand">
-      <div class="brand-title">Seungmo's Foodie Journal</div>
-      <div class="brand-sub">Places I've eaten, rated, and remembered.</div>
+      <div class="brand-row">
+        <div>
+          <div class="brand-title">Seungmo's Foodie Journal</div>
+          <div class="brand-sub">Places I've eaten, rated, and remembered.</div>
+        </div>
+        <a class="stats-link" href="stats.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>
+          Wrapped
+        </a>
+      </div>
     </div>
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -925,8 +956,9 @@ function populateFilters() {
   years.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; ySel.appendChild(o); });
 
   const dataCuisines = new Set(data.map(r => r.cuisine?.trim()).filter(Boolean));
-  const cuisines = [...new Set([...CUISINE_MASTER.filter(c => dataCuisines.has(c)),
-    ...[...dataCuisines].filter(c => !CUISINE_MASTER.includes(c))])].sort();
+  // Show the full master list plus any cuisine present in the data but not in the master.
+  const extras = [...dataCuisines].filter(c => !CUISINE_MASTER.includes(c));
+  const cuisines = [...new Set([...CUISINE_MASTER, ...extras])].sort();
   const cSel = document.getElementById('cuisineFilter');
   cuisines.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; cSel.appendChild(o); });
 
@@ -1061,17 +1093,28 @@ function showCarouselPhoto(photos, idx, emoji) {
   const dpDots  = document.getElementById('dpPhotoDots');
 
   const wrap = document.querySelector('.dp-photo-wrap');
-  dpEmoji.style.display = 'flex';
-  dpPhoto.className = 'dp-photo';
-  wrap.style.aspectRatio = '4/3'; // reset while next image loads
-  dpPhoto.src = `pictures/${photos[idx]}`;
+  const isNav = dpPhoto.classList.contains('loaded');
+
+  if (!isNav) {
+    // First open: show emoji while image loads
+    dpEmoji.style.display = 'flex';
+    dpPhoto.className = 'dp-photo';
+    wrap.style.aspectRatio = '4/3';
+  }
+  // During carousel nav (isNav): keep 'loaded' + old src so old photo stays visible;
+  // browser swaps when new src finishes loading — no blank frame, no emoji flash.
   dpPhoto.onload = () => {
     dpPhoto.classList.add('loaded');
     dpEmoji.style.display = 'none';
     if (dpPhoto.naturalWidth && dpPhoto.naturalHeight)
       wrap.style.aspectRatio = (dpPhoto.naturalWidth / dpPhoto.naturalHeight).toFixed(4);
   };
-  dpPhoto.onerror = () => { dpEmoji.style.display = 'flex'; wrap.style.aspectRatio = '4/3'; };
+  dpPhoto.onerror = () => {
+    dpPhoto.classList.remove('loaded');
+    dpEmoji.style.display = 'flex';
+    wrap.style.aspectRatio = '4/3';
+  };
+  dpPhoto.src = `pictures/${photos[idx]}`;
 
   dpPrev.classList.toggle('hidden', photos.length <= 1 || idx === 0);
   dpNext.classList.toggle('hidden', photos.length <= 1 || idx === photos.length - 1);
