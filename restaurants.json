@@ -948,5 +948,33 @@
       "lephante_3.jpg",
       "lephante_4.jpg"
     ]
+  },
+  {
+    "name": "loquita",
+    "fullName": "Loquita",
+    "id": "loquita",
+    "cuisine": "Spanish",
+    "category": "Fine Dining",
+    "dish": "Spanish",
+    "date": "7/18/26",
+    "favoriteMenu": "Gambas al ajillo & mariscos paella",
+    "thoughts": "Best Spanish restaurant I have ever been to. \nYellowtail crudo with creamy sauce went well. Gambas with guindilla pepper had a perfect amount of kick at the end. \nSquid ink paella was lovely. squid was super soft and rice was perfectly cooked",
+    "location": {
+      "lat": 34.41426,
+      "lng": -119.69159
+    },
+    "ratings": {
+      "Flavor & Taste": 9.5,
+      "Service": 9,
+      "Creativity": 7.5,
+      "Value": 5.5,
+      "Ambiance": 7.5
+    },
+    "photos": [
+      "loquita.jpg",
+      "loquita_2.jpg",
+      "loquita_3.jpg",
+      "loquita_4.jpg"
+    ]
   }
 ]
