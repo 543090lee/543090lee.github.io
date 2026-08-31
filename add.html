@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Add Food">
+<meta name="theme-color" content="#F5F5F7">
+<title>Add a Restaurant</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --primary: #1D1D1F;
+    --secondary: #6E6E73;
+    --tertiary: #AEAEB2;
+    --accent: #E8472A;
+    --blue: #007AFF;
+    --green: #34C759;
+    --red: #FF3B30;
+    --border: rgba(0,0,0,0.09);
+    --r: 13px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--primary);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 calc(96px + env(safe-area-inset-bottom));
+  }
+
+  /* ── HEADER ── */
+  .head {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(245,245,247,0.88);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .head h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.45px; }
+  .head-sub { font-size: 11.5px; color: var(--tertiary); margin-top: 1px; }
+  .icon-btn {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface);
+    font-size: 15px; color: var(--secondary); cursor: pointer;
+    display: grid; place-items: center;
+  }
+
+  .wrap { padding: 14px 16px 0; max-width: 620px; margin: 0 auto; }
+
+  /* ── CARDS / FIELDS ── */
+  .card {
+    background: var(--surface); border-radius: var(--r);
+    border: 1px solid var(--border); padding: 15px; margin-bottom: 13px;
+  }
+  .sec {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.7px;
+    text-transform: uppercase; color: var(--tertiary); margin-bottom: 11px;
+  }
+  .field { margin-bottom: 13px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--secondary); margin-bottom: 6px; }
+  .hint { font-size: 11px; color: var(--tertiary); margin-top: 5px; line-height: 1.45; }
+
+  input[type=text], input[type=date], input[type=password], select, textarea {
+    width: 100%; padding: 11px 13px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg); color: var(--primary);
+    font-family: var(--font); font-size: 16px; /* 16px stops iOS zoom-on-focus */
+    -webkit-appearance: none; appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236E6E73' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 13px center;
+    padding-right: 34px;
+  }
+  textarea { min-height: 108px; resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--blue); background: var(--surface);
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+  /* ── SEARCH ── */
+  .search-wrap { position: relative; }
+  .search-status { font-size: 11px; color: var(--tertiary); margin-top: 6px; min-height: 14px; line-height: 1.4; }
+  .search-status.err { color: var(--red); }
+  .results { margin-top: 9px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: none; }
+  .results.show { display: block; }
+  .res-item {
+    padding: 11px 13px; border-bottom: 1px solid var(--border);
+    cursor: pointer; -webkit-tap-highlight-color: rgba(0,122,255,0.12);
+  }
+  .res-item:last-child { border-bottom: none; }
+  .res-item:active { background: var(--bg); }
+  .res-name { font-size: 14.5px; font-weight: 600; letter-spacing: -0.2px; }
+  .res-addr { font-size: 11.5px; color: var(--tertiary); margin-top: 2px; line-height: 1.4; }
+  .res-dist { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 3px; }
+  .pin-ok { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  /* ── PHOTOS ── */
+  .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ph { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph-x {
+    position: absolute; top: 4px; right: 4px; width: 23px; height: 23px;
+    border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff;
+    font-size: 14px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+  }
+  .ph-first {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.62); color: #fff; font-size: 9.5px;
+    font-weight: 700; letter-spacing: 0.4px; text-align: center; padding: 3px;
+  }
+  .ph-add {
+    aspect-ratio: 1; border: 1.5px dashed var(--tertiary); border-radius: 10px;
+    display: grid; place-items: center; align-content: center; gap: 2px;
+    color: var(--tertiary); cursor: pointer; position: relative;
+  }
+  .ph-add input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .ph-add .plus { font-size: 22px; font-weight: 300; line-height: 1; }
+  .ph-add .lbl { font-size: 10px; font-weight: 600; }
+
+  /* ── RATINGS ── */
+  .rt { display: grid; grid-template-columns: 96px 1fr 34px; align-items: center; gap: 10px; margin-bottom: 15px; }
+  .rt:last-child { margin-bottom: 0; }
+  .rt-lbl { font-size: 12.5px; font-weight: 600; color: var(--secondary); }
+  .rt-val { font-size: 14px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; width: 100%;
+    height: 4px; border-radius: 2px; background: #E5E5EA; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer;
+  }
+  .overall {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--border);
+  }
+  .overall-lbl { font-size: 12.5px; font-weight: 600; color: var(--secondary); }
+  .overall-val { font-size: 25px; font-weight: 700; letter-spacing: -0.9px; }
+
+  /* ── SAVE BAR ── */
+  .savebar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    background: rgba(245,245,247,0.9);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    padding: 11px 16px calc(11px + env(safe-area-inset-bottom));
+  }
+  .savebar-inner { max-width: 620px; margin: 0 auto; }
+  .btn {
+    width: 100%; height: 50px; border: none; border-radius: 13px;
+    background: var(--accent); color: #fff;
+    font-family: var(--font); font-size: 16.5px; font-weight: 700;
+    letter-spacing: -0.2px; cursor: pointer;
+  }
+  .btn:disabled { opacity: 0.45; }
+  .btn.grey { background: #E5E5EA; color: var(--primary); }
+  .btn.blue { background: var(--blue); }
+  .btn.sm { height: 42px; font-size: 14.5px; }
+  .save-status { font-size: 11.5px; color: var(--tertiary); text-align: center; margin-top: 7px; min-height: 15px; line-height: 1.4; }
+  .save-status.err { color: var(--red); }
+  .save-status.ok { color: var(--green); font-weight: 600; }
+
+  /* ── RECENT ── */
+  .recent-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-name { font-size: 13.5px; font-weight: 600; flex: 1; min-width: 0;
+                 overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .recent-meta { font-size: 11px; color: var(--tertiary); }
+
+  /* ── SETUP GATE ── */
+  .gate { position: fixed; inset: 0; z-index: 100; background: var(--bg); overflow-y: auto;
+          padding: calc(28px + env(safe-area-inset-top)) 20px 40px; display: none; }
+  .gate.show { display: block; }
+  .gate-inner { max-width: 480px; margin: 0 auto; }
+  .gate h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 7px; }
+  .gate p { font-size: 13.5px; color: var(--secondary); line-height: 1.55; margin-bottom: 17px; }
+  .gate ol { margin: 0 0 17px 18px; font-size: 13px; color: var(--secondary); line-height: 1.75; }
+  .gate ol strong { color: var(--primary); }
+  .gate code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    background: rgba(0,0,0,0.055); padding: 1.5px 5px; border-radius: 4px;
+    word-break: break-all;
+  }
+  .gate a { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ SETUP GATE ══════════ -->
+<div class="gate" id="gate">
+  <div class="gate-inner">
+    <h2>One-time setup</h2>
+    <p>This page saves straight to your GitHub repo, so it needs a token with permission to write to it. It's stored only in this browser and never leaves your phone except to talk to GitHub.</p>
+    <ol>
+      <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>
+      <li>Token name: <strong>foodie-phone</strong></li>
+      <li>Expiration: <strong>1 year</strong> (you'll redo this step when it lapses)</li>
+      <li>Repository access → <strong>Only select repositories</strong> → <code>543090lee/543090lee.github.io</code></li>
+      <li>Permissions → Repository permissions → <strong>Contents</strong> → <strong>Read and write</strong></li>
+      <li>Generate token, copy it, paste below</li>
+    </ol>
+    <div class="field">
+      <label>GitHub token</label>
+      <input type="password" id="tokenInput" placeholder="github_pat_…" autocomplete="off"
+             autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div class="hint" id="tokenHint">Starts with <code>github_pat_</code></div>
+    </div>
+    <button class="btn blue sm" id="tokenSave" style="margin-top:4px">Save &amp; verify</button>
+  </div>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="head">
+  <div>
+    <h1>Add a Restaurant</h1>
+    <div class="head-sub" id="headSub">Loading…</div>
+  </div>
+  <button class="icon-btn" id="signOut" title="Change token">⚙</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ── SEARCH ── -->
+  <div class="card">
+    <div class="sec">Find the place</div>
+    <div class="search-wrap">
+      <input type="text" id="q" placeholder="Kali, Mother Wolf, Sushi Umi…"
+             autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+             enterkeyhint="search">
+      <div class="search-status" id="qStatus">Finding your location…</div>
+      <div class="results" id="results"></div>
+    </div>
+  </div>
+
+  <!-- ── PHOTOS ── -->
+  <div class="card">
+    <div class="sec">Photos</div>
+    <div class="photos" id="photos">
+      <label class="ph-add" id="phAdd">
+        <input type="file" id="photoInput" accept="image/*" multiple>
+        <span class="plus">+</span>
+        <span class="lbl">Add</span>
+      </label>
+    </div>
+    <div class="hint">First photo becomes the card thumbnail. Shrunk to 1200px on your phone before upload.</div>
+  </div>
+
+  <!-- ── DETAILS ── -->
+  <div class="card">
+    <div class="sec">Details</div>
+
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" id="fullName" placeholder="Kali Restaurant" autocapitalize="words">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Short name</label>
+        <input type="text" id="name" placeholder="Kali" autocapitalize="words">
+      </div>
+      <div class="field">
+        <label>ID</label>
+        <input type="text" id="rid" placeholder="kali" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Cuisine</label>
+        <select id="cuisine"></select>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="category"></select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Dish type</label>
+        <input type="text" id="dish" placeholder="Hot Pot, Gelato…" autocapitalize="words">
+      </div>
+      <div class="field">
+        <label>Date visited</label>
+        <input type="date" id="date">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Favorite menu item</label>
+      <input type="text" id="favoriteMenu" placeholder="Beef Hot Pot, Rose Gelato…" autocapitalize="sentences">
+    </div>
+
+    <div class="field">
+      <label>Thoughts</label>
+      <textarea id="thoughts" placeholder="What stood out? Would you go back?" autocapitalize="sentences"></textarea>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Latitude</label>
+        <input type="text" id="lat" placeholder="34.0613" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Longitude</label>
+        <input type="text" id="lng" placeholder="-118.4464" inputmode="decimal">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RATINGS ── -->
+  <div class="card">
+    <div class="sec">Ratings</div>
+    <div id="sliders"></div>
+    <div class="overall">
+      <div class="overall-lbl">Overall</div>
+      <div class="overall-val" id="overall">7.0</div>
+    </div>
+  </div>
+
+  <!-- ── RECENT ── -->
+  <div class="card">
+    <div class="sec">Recently added</div>
+    <div id="recent"><div class="recent-meta">Loading…</div></div>
+  </div>
+
+</div>
+
+<!-- ══════════ SAVE BAR ══════════ -->
+<div class="savebar">
+  <div class="savebar-inner">
+    <button class="btn" id="saveBtn" disabled>Save &amp; publish</button>
+    <div class="save-status" id="saveStatus"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════════════════════════ */
+const OWNER  = '543090lee';
+const REPO   = '543090lee.github.io';
+const BRANCH = 'master';
+const GH     = `https://api.github.com/repos/${OWNER}/${REPO}`;
+
+// The URL-restricted token — the same one index.html already ships. It only
+// answers requests coming from 543090lee.github.io, which is exactly where this
+// page lives, so it is safe to publish. Do NOT paste the unrestricted token
+// from admin.html here: that one works from anywhere, and on a public page
+// anyone could lift it and spend your Mapbox quota.
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
+
+const MAX_EDGE = 1200;    // matches `sips -Z 1200` on the desktop admin
+const JPEG_Q   = 0.82;
+
+const RATING_KEYS = ['Flavor & Taste', 'Service', 'Creativity', 'Value', 'Ambiance'];
+
+const CUISINES = ['American','Brazilian','Caribbean','Chinese','Filipino','French','German',
+  'Greek','Indian','Italian','Japanese','Korean','Mediterranean','Mexican','Middle Eastern',
+  'Moroccan','Peruvian','Spanish','Taiwanese','Thai','Turkish','Vietnamese','Other'];
+
+const CATEGORIES = ['Casual Dining','Fine Dining','Dessert','Bakery & Café','Street Food','Bar & Grill'];
+
+// Mapbox poi_category_ids → your cuisine list. First match wins.
+const CUISINE_HINTS = [
+  ['japanese',       'Japanese'],   ['sushi',      'Japanese'],   ['ramen',    'Japanese'],
+  ['korean',         'Korean'],     ['chinese',    'Chinese'],    ['dim_sum',  'Chinese'],
+  ['taiwanese',      'Taiwanese'],  ['thai',       'Thai'],       ['vietnamese','Vietnamese'],
+  ['indian',         'Indian'],     ['filipino',   'Filipino'],   ['italian',  'Italian'],
+  ['pizza',          'Italian'],    ['french',     'French'],     ['german',   'German'],
+  ['greek',          'Greek'],      ['turkish',    'Turkish'],    ['moroccan', 'Moroccan'],
+  ['middle_eastern', 'Middle Eastern'], ['mediterranean','Mediterranean'],
+  ['spanish',        'Spanish'],    ['tapas',      'Spanish'],    ['mexican',  'Mexican'],
+  ['taco',           'Mexican'],    ['peruvian',   'Peruvian'],   ['brazilian','Brazilian'],
+  ['caribbean',      'Caribbean'],  ['burger',     'American'],   ['steakhouse','American'],
+  ['barbecue',       'American'],   ['american',   'American']
+];
+
+// Mapbox poi_category_ids → your category list. First match wins.
+const CATEGORY_HINTS = [
+  ['dessert',    'Dessert'],        ['ice_cream',  'Dessert'],
+  ['gelato',     'Dessert'],        ['bakery',     'Bakery & Café'],
+  ['coffee',     'Bakery & Café'],  ['cafe',       'Bakery & Café'],
+  ['food_truck', 'Street Food'],    ['street_food','Street Food'],
+  ['bar',        'Bar & Grill'],    ['pub',        'Bar & Grill'],
+  ['brewery',    'Bar & Grill'],    ['fine_dining','Fine Dining']
+];
+
+/* ══════════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════════ */
+let token       = localStorage.getItem('foodie_gh_token') || '';
+let restaurants = [];      // current restaurants.json
+let jsonSha     = null;    // unused for tree API, kept for reference
+let photos      = [];      // [{ blob, dataUrl }]
+let myPos       = null;    // { lat, lng } for proximity bias
+let searchTimer = null;
+let saving      = false;
+
+const $ = id => document.getElementById(id);
+
+/* ══════════════════════════════════════════════════════════════
+   SETUP GATE
+   ══════════════════════════════════════════════════════════════ */
+function showGate(msg) {
+  $('gate').classList.add('show');
+  if (msg) { $('tokenHint').innerHTML = msg; $('tokenHint').style.color = 'var(--red)'; }
+}
+function hideGate() { $('gate').classList.remove('show'); }
+
+$('tokenSave').addEventListener('click', async () => {
+  const t = $('tokenInput').value.trim();
+  if (!t) return;
+  $('tokenSave').textContent = 'Verifying…';
+  $('tokenSave').disabled = true;
+  try {
+    // Hitting the repo root proves both "token is valid" and "it can see this repo".
+    const res = await fetch(GH, { headers: { Authorization: `Bearer ${t}`, Accept: 'application/vnd.github+json' } });
+    if (!res.ok) throw new Error(res.status === 401 ? 'Token rejected by GitHub (401).'
+                              : res.status === 404 ? 'Token is valid but cannot see this repo — check the repository access step.'
+                              : `GitHub returned ${res.status}.`);
+    token = t;
+    localStorage.setItem('foodie_gh_token', t);
+    hideGate();
+    boot();
+  } catch (e) {
+    $('tokenHint').textContent = e.message;
+    $('tokenHint').style.color = 'var(--red)';
+  } finally {
+    $('tokenSave').textContent = 'Save & verify';
+    $('tokenSave').disabled = false;
+  }
+});
+
+$('signOut').addEventListener('click', () => {
+  if (!confirm('Forget the saved GitHub token on this device?')) return;
+  localStorage.removeItem('foodie_gh_token');
+  token = '';
+  $('tokenInput').value = '';
+  showGate();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   FORM SCAFFOLDING
+   ══════════════════════════════════════════════════════════════ */
+function slug(key) { return key.replace(/[^a-z]/gi, '_'); }
+
+function buildSelects() {
+  $('cuisine').innerHTML  = CUISINES.map(c => `<option>${c}</option>`).join('');
+  $('category').innerHTML = CATEGORIES.map(c => `<option>${c}</option>`).join('');
+}
+
+function buildSliders() {
+  $('sliders').innerHTML = RATING_KEYS.map(k => `
+    <div class="rt">
+      <div class="rt-lbl">${k}</div>
+      <input type="range" min="0" max="10" step="0.5" value="7" id="r_${slug(k)}">
+      <div class="rt-val" id="v_${slug(k)}">7</div>
+    </div>`).join('');
+  RATING_KEYS.forEach(k => {
+    $(`r_${slug(k)}`).addEventListener('input', e => {
+      $(`v_${slug(k)}`).textContent = Number(e.target.value).toFixed(1).replace(/\.0$/, '');
+      updateOverall();
+    });
+  });
+  updateOverall();
+}
+
+function getRatings() {
+  const r = {};
+  RATING_KEYS.forEach(k => r[k] = parseFloat($(`r_${slug(k)}`).value));
+  return r;
+}
+
+function updateOverall() {
+  const v = Object.values(getRatings());
+  $('overall').textContent = (v.reduce((a, b) => a + b, 0) / v.length).toFixed(1);
+}
+
+// restaurants.json stores dates as M/D/YY
+function toJournalDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return `${dt.getMonth() + 1}/${dt.getDate()}/${String(dt.getFullYear()).slice(-2)}`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GEOLOCATION  (proximity bias for search)
+   ══════════════════════════════════════════════════════════════ */
+function locateMe() {
+  if (!navigator.geolocation) { $('qStatus').textContent = 'Type a restaurant name to search.'; return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      $('qStatus').textContent = 'Searching near you — results closest first.';
+      if ($('q').value.trim().length >= 2) search($('q').value.trim());
+    },
+    () => {
+      myPos = null;
+      $('qStatus').textContent = 'Location off — searching worldwide. Add a city to narrow it down.';
+    },
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SEARCH  (Mapbox Search Box API — built for POIs, unlike Geocoding v5)
+   ══════════════════════════════════════════════════════════════ */
+$('q').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  if (q.length < 2) { $('results').className = 'results'; return; }
+  searchTimer = setTimeout(() => search(q), 350);
+});
+
+async function search(q) {
+  const status = $('qStatus');
+  status.className = 'search-status';
+  status.textContent = 'Searching…';
+
+  const params = new URLSearchParams({
+    q, access_token: MAPBOX_TOKEN, limit: '8', language: 'en'
+  });
+  if (myPos) params.set('proximity', `${myPos.lng},${myPos.lat}`);
+
+  let json;
+  try {
+    const res = await fetch(`https://api.mapbox.com/search/searchbox/v1/forward?${params}`);
+    json = await res.json();
+    if (!res.ok) throw new Error(json?.message || `Mapbox returned ${res.status}`);
+  } catch (e) {
+    status.className = 'search-status err';
+    // The token is locked to 543090lee.github.io, so Mapbox 403s anywhere else.
+    status.textContent = /forbidden|403/i.test(e.message)
+      ? 'Mapbox refused this page. Open add.html on 543090lee.github.io — the map token does not work from localhost or a file:// copy.'
+      : `Search failed: ${e.message}`;
+    $('results').className = 'results';
+    return;
+  }
+
+  const feats = (json.features || []).filter(f => f.geometry?.coordinates);
+  if (!feats.length) {
+    status.textContent = `No match for "${q}". Try adding the city, or drop the coordinates in by hand below.`;
+    $('results').className = 'results';
+    return;
+  }
+
+  status.textContent = myPos ? 'Closest results first.' : 'Tap a result to fill in the location.';
+  $('results').innerHTML = feats.map((f, i) => {
+    const p = f.properties || {};
+    const d = p.distance != null ? distLabel(p.distance) : '';
+    return `<div class="res-item" data-i="${i}">
+      <div class="res-name">${esc(p.name || 'Unnamed')}</div>
+      <div class="res-addr">${esc(p.full_address || p.place_formatted || '')}</div>
+      ${d ? `<div class="res-dist">${d}</div>` : ''}
+    </div>`;
+  }).join('');
+  $('results')._feats = feats;
+  $('results').className = 'results show';
+}
+
+function distLabel(m) {
+  const mi = m / 1609.34;
+  return mi < 0.2 ? `${Math.round(m * 3.28084)} ft away`
+       : mi < 10  ? `${mi.toFixed(1)} mi away`
+       : `${Math.round(mi)} mi away`;
+}
+
+$('results').addEventListener('click', e => {
+  const item = e.target.closest('.res-item');
+  if (!item) return;
+  applyResult($('results')._feats[Number(item.dataset.i)]);
+});
+
+function applyResult(f) {
+  const p    = f.properties || {};
+  const name = p.name || '';
+  const [lng, lat] = f.geometry.coordinates;
+
+  $('lat').value = lat.toFixed(8);
+  $('lng').value = lng.toFixed(8);
+  if (!$('fullName').value) $('fullName').value = name;
+  if (!$('name').value)     $('name').value     = name.split(' ').slice(0, 3).join(' ');
+  if (!$('rid').value)      $('rid').value      = makeId(name);
+
+  // Mapbox tells us what kind of place it is — use it as a starting guess.
+  const cats = (p.poi_category_ids || []).join(' ').toLowerCase();
+  const hitC = CUISINE_HINTS.find(([k]) => cats.includes(k));
+  if (hitC) $('cuisine').value = hitC[1];
+  const hitK = CATEGORY_HINTS.find(([k]) => cats.includes(k));
+  if (hitK) $('category').value = hitK[1];
+
+  $('q').value = p.full_address || p.place_formatted || name;
+  $('results').className = 'results';
+  $('qStatus').className = 'search-status';
+  $('qStatus').innerHTML = `<span class="pin-ok">✓ Pinned</span> ${esc(lat.toFixed(5))}, ${esc(lng.toFixed(5))}`;
+  validate();
+}
+
+function makeId(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PHOTOS  (resize on-device; no `sips` available in a browser)
+   ══════════════════════════════════════════════════════════════ */
+$('photoInput').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  for (const file of files) {
+    if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) continue;
+    try {
+      photos.push(await shrink(file));
+    } catch (err) {
+      alert(`Couldn't read ${file.name}: ${err.message}`);
+    }
+  }
+  renderPhotos();
+});
+
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, MAX_EDGE / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width  = Math.round(img.width  * scale);
+      cv.height = Math.round(img.height * scale);
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob(
+        blob => blob ? resolve({ blob, dataUrl: cv.toDataURL('image/jpeg', 0.5) })
+                     : reject(new Error('could not encode as JPEG')),
+        'image/jpeg', JPEG_Q
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('this image format is not readable in the browser'));
+    };
+    img.src = url;
+  });
+}
+
+function renderPhotos() {
+  const add = $('phAdd');
+  $('photos').innerHTML = photos.map((p, i) => `
+    <div class="ph">
+      <img src="${p.dataUrl}" alt="">
+      <button type="button" class="ph-x" data-i="${i}">×</button>
+      ${i === 0 ? '<div class="ph-first">THUMBNAIL</div>' : ''}
+    </div>`).join('');
+  $('photos').appendChild(add);
+  validate();
+}
+
+$('photos').addEventListener('click', e => {
+  const x = e.target.closest('.ph-x');
+  if (!x) return;
+  photos.splice(Number(x.dataset.i), 1);
+  renderPhotos();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   LOAD EXISTING DATA
+   ══════════════════════════════════════════════════════════════ */
+async function gh(path, opts = {}) {
+  const res = await fetch(`${GH}${path}`, {
+    ...opts,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.message || `GitHub ${res.status} on ${path}`);
+  return body;
+}
+
+async function loadRestaurants() {
+  // Read through the API, not the published file — GitHub Pages can serve a stale copy.
+  const file = await gh(`/contents/restaurants.json?ref=${BRANCH}`);
+  jsonSha = file.sha;
+  const text = decodeURIComponent(escape(atob(file.content.replace(/\s/g, ''))));
+  restaurants = JSON.parse(text);
+}
+
+function renderRecent() {
+  const last = restaurants.slice(-5).reverse();
+  $('recent').innerHTML = last.length
+    ? last.map(r => `<div class="recent-item">
+        <div class="recent-name">${esc(r.name)}</div>
+        <div class="recent-meta">${esc(r.date || '')}</div>
+      </div>`).join('')
+    : '<div class="recent-meta">Nothing yet.</div>';
+  $('headSub').textContent = `${restaurants.length} places logged`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VALIDATION
+   ══════════════════════════════════════════════════════════════ */
+function validate() {
+  const ok = $('fullName').value.trim()
+          && $('name').value.trim()
+          && $('rid').value.trim()
+          && !isNaN(parseFloat($('lat').value))
+          && !isNaN(parseFloat($('lng').value));
+  $('saveBtn').disabled = !ok || saving;
+  return ok;
+}
+['fullName', 'name', 'rid', 'lat', 'lng'].forEach(id =>
+  document.addEventListener('input', e => { if (e.target.id === id) validate(); }));
+
+// Mirror the desktop admin: typing a full name seeds the short name and ID.
+$('fullName').addEventListener('input', e => {
+  if (!$('rid').value)  $('rid').value  = makeId(e.target.value);
+  if (!$('name').value) $('name').value = e.target.value.split(' ').slice(0, 3).join(' ');
+});
+
+/* ══════════════════════════════════════════════════════════════
+   SAVE  →  one atomic commit via the Git Data API
+   ══════════════════════════════════════════════════════════════ */
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload  = () => resolve(fr.result.split(',')[1]);
+    fr.onerror = () => reject(new Error('could not read image data'));
+    fr.readAsDataURL(blob);
+  });
+}
+
+function utf8ToBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function setStatus(msg, cls = '') {
+  $('saveStatus').textContent = msg;
+  $('saveStatus').className = `save-status ${cls}`;
+}
+
+$('saveBtn').addEventListener('click', async () => {
+  if (saving || !validate()) return;
+
+  const id = makeId($('rid').value);
+  if (!id) return setStatus('ID must contain letters or numbers.', 'err');
+  if (restaurants.some(r => r.id === id)) {
+    return setStatus(`ID "${id}" is already used — its photos would be overwritten. Pick another.`, 'err');
+  }
+
+  saving = true;
+  $('saveBtn').disabled = true;
+
+  try {
+    // Re-read first: the desktop admin may have pushed since this page loaded.
+    setStatus('Checking for newer entries…');
+    await loadRestaurants();
+    if (restaurants.some(r => r.id === id)) {
+      throw new Error(`"${id}" was added from another device in the meantime. Change the ID and try again.`);
+    }
+
+    const entry = {
+      name:         $('name').value.trim(),
+      fullName:     $('fullName').value.trim(),
+      id,
+      cuisine:      $('cuisine').value,
+      category:     $('category').value,
+      dish:         $('dish').value.trim(),
+      date:         toJournalDate($('date').value),
+      favoriteMenu: $('favoriteMenu').value.trim(),
+      thoughts:     $('thoughts').value.trim(),
+      location:     { lat: parseFloat($('lat').value), lng: parseFloat($('lng').value) },
+      ratings:      getRatings(),
+      photos:       photos.map((_, i) => i === 0 ? `${id}.jpg` : `${id}_${i + 1}.jpg`)
+    };
+
+    // 1. Where does master point right now?
+    setStatus('Reading branch…');
+    const ref        = await gh(`/git/ref/heads/${BRANCH}`);
+    const baseCommit = ref.object.sha;
+    const baseTree   = (await gh(`/git/commits/${baseCommit}`)).tree.sha;
+
+    // 2. Upload each photo as a blob.
+    const tree = [];
+    for (let i = 0; i < photos.length; i++) {
+      setStatus(`Uploading photo ${i + 1} of ${photos.length}…`);
+      const b64  = await blobToBase64(photos[i].blob);
+      const blob = await gh('/git/blobs', {
+        method: 'POST',
+        body: JSON.stringify({ content: b64, encoding: 'base64' })
+      });
+      tree.push({ path: `pictures/${entry.photos[i]}`, mode: '100644', type: 'blob', sha: blob.sha });
+    }
+
+    // 3. Upload the updated restaurants.json.
+    setStatus('Writing restaurants.json…');
+    const updated  = [...restaurants, entry];
+    const jsonBlob = await gh('/git/blobs', {
+      method: 'POST',
+      body: JSON.stringify({ content: utf8ToBase64(JSON.stringify(updated, null, 2)), encoding: 'base64' })
+    });
+    tree.push({ path: 'restaurants.json', mode: '100644', type: 'blob', sha: jsonBlob.sha });
+
+    // 4. Tree → commit → move the branch. All-or-nothing.
+    setStatus('Committing…');
+    const newTree = await gh('/git/trees', {
+      method: 'POST',
+      body: JSON.stringify({ base_tree: baseTree, tree })
+    });
+    const commit = await gh('/git/commits', {
+      method: 'POST',
+      body: JSON.stringify({
+        message: `Add ${entry.name} (from phone)`,
+        tree: newTree.sha,
+        parents: [baseCommit]
+      })
+    });
+    await gh(`/git/refs/heads/${BRANCH}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ sha: commit.sha })
+    });
+
+    restaurants = updated;
+    renderRecent();
+    resetForm();
+    setStatus(`✓ ${entry.name} published — live in about a minute.`, 'ok');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (e) {
+    setStatus(e.message, 'err');
+  } finally {
+    saving = false;
+    validate();
+  }
+});
+
+function resetForm() {
+  ['q', 'fullName', 'name', 'rid', 'dish', 'favoriteMenu', 'thoughts', 'lat', 'lng']
+    .forEach(id => $(id).value = '');
+  $('cuisine').selectedIndex  = 0;
+  $('category').selectedIndex = 0;
+  $('date').value = new Date().toISOString().slice(0, 10);
+  RATING_KEYS.forEach(k => { $(`r_${slug(k)}`).value = 7; $(`v_${slug(k)}`).textContent = '7'; });
+  updateOverall();
+  photos = [];
+  renderPhotos();
+  $('results').className = 'results';
+  $('qStatus').className = 'search-status';
+  $('qStatus').textContent = myPos ? 'Searching near you — results closest first.' : 'Type a restaurant name to search.';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+   ══════════════════════════════════════════════════════════════ */
+async function boot() {
+  try {
+    setStatus('');
+    await loadRestaurants();
+    renderRecent();
+    locateMe();
+  } catch (e) {
+    if (/401|Bad credentials/i.test(e.message)) {
+      showGate('Saved token no longer works — paste a fresh one.');
+    } else {
+      $('headSub').textContent = 'Offline';
+      setStatus(e.message, 'err');
+    }
+  }
+}
+
+buildSelects();
+buildSliders();
+renderPhotos();
+$('date').value = new Date().toISOString().slice(0, 10);
+
+if (token) boot(); else showGate();
+</script>
+</body>
+</html>
