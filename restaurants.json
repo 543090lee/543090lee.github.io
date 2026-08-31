@@ -976,5 +976,81 @@
       "loquita_3.jpg",
       "loquita_4.jpg"
     ]
+  },
+  {
+    "name": "mido",
+    "fullName": "미도한우함박",
+    "id": "mido",
+    "cuisine": "Korean",
+    "category": "Casual Dining",
+    "dish": "Hambak Steak",
+    "date": "8/30/26",
+    "favoriteMenu": "한우 함박",
+    "thoughts": "Hambak steak was really soft and juicy. Unlimited rice and soup refill was nice of them.",
+    "location": {
+      "lat": 37.504146,
+      "lng": 127.003101
+    },
+    "ratings": {
+      "Flavor & Taste": 8.5,
+      "Service": 7,
+      "Creativity": 6,
+      "Value": 5.5,
+      "Ambiance": 8.5
+    },
+    "photos": [
+      "mido.jpg"
+    ]
+  },
+  {
+    "name": "Beef Cutlet Otaru",
+    "fullName": "Beef Cutlet Otaru Kurosawa",
+    "id": "beefcutletotarukuros",
+    "cuisine": "Japanese",
+    "category": "Casual Dining",
+    "dish": "Beef Cutlet",
+    "date": "8/26/26",
+    "favoriteMenu": "Beef Cutlet and Eel",
+    "thoughts": "Beef Cutlet was overall good. Met was soft, but it had too many tendons in the meat, so it was hard to chew. Other than that, the sauce was good (I especially liked yuzu daikon oroshi). My brother tried grilled eel rice bowl. Eel was soft and grilled perfectly.",
+    "location": {
+      "lat": 43.194,
+      "lng": 141.0065
+    },
+    "ratings": {
+      "Flavor & Taste": 7,
+      "Service": 5,
+      "Creativity": 5.5,
+      "Value": 4.5,
+      "Ambiance": 5
+    },
+    "photos": [
+      "beefcutletotarukuros.jpg"
+    ]
+  },
+  {
+    "name": "Ohiso Nijo Market",
+    "fullName": "Ohiso Nijo Market",
+    "id": "ohisonijomarket",
+    "cuisine": "Japanese",
+    "category": "Casual Dining",
+    "dish": "Kaisen-don",
+    "date": "8/25/26",
+    "favoriteMenu": "Kaisen-don",
+    "thoughts": "Ordered Kaisen-don with salmon, crab meat, and uni. Uni was fresh. No bitterness and pretty sweet. \nI wish crab had more of its own flavor. Everything else was wonderful",
+    "location": {
+      "lat": 43.0583,
+      "lng": 141.3582
+    },
+    "ratings": {
+      "Flavor & Taste": 8,
+      "Service": 6,
+      "Creativity": 5.5,
+      "Value": 5,
+      "Ambiance": 5.5
+    },
+    "photos": [
+      "ohisonijomarket.jpg",
+      "ohisonijomarket_2.jpg"
+    ]
   }
 ]
