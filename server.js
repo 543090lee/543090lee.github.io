@@ -111,5 +111,5 @@ app.listen(PORT, () => {
   console.log(`\n  Seungmo's Food Journal`);
   console.log(`  ─────────────────────────────────`);
   console.log(`  Site:   http://localhost:${PORT}`);
-  console.log(`  Admin:  http://localhost:${PORT}/admin.html\n`);
+  console.log(`  Admin:  http://localhost:${PORT}/mac.html\n`);
 });

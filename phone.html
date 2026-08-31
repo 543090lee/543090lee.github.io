@@ -364,7 +364,7 @@ const GH     = `https://api.github.com/repos/${OWNER}/${REPO}`;
 // The URL-restricted token — the same one index.html already ships. It only
 // answers requests coming from 543090lee.github.io, which is exactly where this
 // page lives, so it is safe to publish. Do NOT paste the unrestricted token
-// from admin.html here: that one works from anywhere, and on a public page
+// from mac.html here: that one works from anywhere, and on a public page
 // anyone could lift it and spend your Mapbox quota.
 const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
 
@@ -550,7 +550,7 @@ async function search(q) {
     status.className = 'search-status err';
     // The token is locked to 543090lee.github.io, so Mapbox 403s anywhere else.
     status.textContent = /forbidden|403/i.test(e.message)
-      ? 'Mapbox refused this page. Open add.html on 543090lee.github.io — the map token does not work from localhost or a file:// copy.'
+      ? 'Mapbox refused this page. Open phone.html on 543090lee.github.io — the map token does not work from localhost or a file:// copy.'
       : `Search failed: ${e.message}`;
     $('results').className = 'results';
     return;

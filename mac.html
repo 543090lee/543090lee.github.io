@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Food Journal — Admin</title>
+  <title>Seungmo's Foodie Journal — Admin</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -383,7 +383,7 @@
 <!-- SIDEBAR: existing restaurants -->
 <div class="sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-title">Food Journal</div>
+    <div class="sidebar-title">Foodie Journal</div>
     <div class="sidebar-sub">Admin Panel</div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-primary" id="newBtn">+ New</button>
@@ -431,9 +431,10 @@
         <div class="field full">
           <label>Search Restaurant (auto-fills location)</label>
           <div class="geocode-wrap">
-            <input type="text" id="geoSearch" placeholder="e.g. Kali Restaurant Los Angeles">
+            <input type="text" id="geoSearch" placeholder="Kali, Mother Wolf, Sushi Umi\u2026" autocomplete="off">
             <div class="geocode-results" id="geoResults"></div>
           </div>
+          <div class="hint" id="geoStatus">Type a restaurant name.</div>
         </div>
 
         <div class="field full">
@@ -456,8 +457,12 @@
           <label>Cuisine</label>
           <select id="cuisine">
             <option>American</option>
+            <option>Brazilian</option>
+            <option>Caribbean</option>
             <option>Chinese</option>
+            <option>Filipino</option>
             <option>French</option>
+            <option>German</option>
             <option>Greek</option>
             <option>Indian</option>
             <option>Italian</option>
@@ -466,8 +471,12 @@
             <option>Mediterranean</option>
             <option>Mexican</option>
             <option>Middle Eastern</option>
+            <option>Moroccan</option>
+            <option>Peruvian</option>
             <option>Spanish</option>
+            <option>Taiwanese</option>
             <option>Thai</option>
+            <option>Turkish</option>
             <option>Vietnamese</option>
             <option>Other</option>
           </select>
@@ -535,12 +544,18 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// Runs on localhost, where the site's URL-restricted token is refused by the
+// Search Box API. Swap in your unrestricted Mapbox token locally and keep it
+// out of git:  git update-index --assume-unchanged mac.html
+// Never let the unrestricted token reach a committed, public page.
 const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2V1bmdtb2xlZSIsImEiOiJjbXE1bDB6ZHMwMDBhMnBvb29yaGxjd21nIn0.YAZQDlFFBoSRqKy-NM58UQ';
 
 const RATING_KEYS = ['Flavor & Taste', 'Service', 'Creativity', 'Value', 'Ambiance'];
 const EMOJI = { Chinese:'🥢', Italian:'🍨', American:'🍔', French:'🥐', Thai:'🌶️',
                 Japanese:'🍜', Korean:'🥩', Mexican:'🌮', Indian:'🍛', Vietnamese:'🍲',
                 Greek:'🫒', Spanish:'🥘', Mediterranean:'🫙', 'Middle Eastern':'🧆',
+                German:'🥨', Brazilian:'🥩', Caribbean:'🌴', Filipino:'🍖',
+                Moroccan:'🫕', Peruvian:'🍋', Taiwanese:'🥟', Turkish:'🥙',
                 'Bakery & Café':'☕', 'Street Food':'🌯', Other:'🍽️' };
 
 let restaurants = [];
@@ -548,7 +563,7 @@ let editIdx = null;
 let existingPhotos = [];
 let newFiles = [];
 
-function scoreClass(s) { return s >= 7.5 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
+function scoreClass(s) { return s >= 7.0 ? 'hi' : s >= 5.5 ? 'mid' : 'lo'; }
 
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
@@ -804,42 +819,102 @@ async function deleteRestaurant() {
   resetForm();
 }
 
-// Geocoding
+// Geocoding — Mapbox Search Box API (POI-aware; Geocoding v5 was address-only
+// and returned nonsense for restaurant names, e.g. "kali los angeles" -> Chile)
 let geoTimer;
+let geoPos = null;   // proximity bias, filled in below
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      geoPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      setGeoStatus('Searching near you \u2014 closest results first.');
+    },
+    () => setGeoStatus('Location off \u2014 searching worldwide. Add a city to narrow it down.'),
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+  );
+}
+
+function setGeoStatus(msg, isErr) {
+  const el = document.getElementById('geoStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--accent)' : 'var(--tertiary)';
+}
+
 document.getElementById('geoSearch').addEventListener('input', e => {
   clearTimeout(geoTimer);
   const q = e.target.value.trim();
-  if (q.length < 3) { document.getElementById('geoResults').className = 'geocode-results'; return; }
-  geoTimer = setTimeout(() => geocode(q), 400);
+  if (q.length < 2) { document.getElementById('geoResults').className = 'geocode-results'; return; }
+  geoTimer = setTimeout(() => geocode(q), 350);
 });
 
 async function geocode(q) {
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN}&limit=5&types=poi,address`;
-  const res  = await fetch(url);
-  const json = await res.json();
-  const box  = document.getElementById('geoResults');
+  const box = document.getElementById('geoResults');
+  setGeoStatus('Searching\u2026');
 
-  if (!json.features?.length) { box.className = 'geocode-results'; return; }
+  const params = new URLSearchParams({
+    q, access_token: MAPBOX_TOKEN, limit: '8', language: 'en'
+  });
+  if (geoPos) params.set('proximity', `${geoPos.lng},${geoPos.lat}`);
 
-  box.innerHTML = json.features.map((f, i) => `
-    <div class="geo-item" onclick="applyGeo(${i})">
-      <div class="geo-place">${f.text}</div>
-      <div class="geo-addr">${f.place_name}</div>
-    </div>`).join('');
+  let json;
+  try {
+    const res = await fetch(`https://api.mapbox.com/search/searchbox/v1/forward?${params}`);
+    json = await res.json();
+    if (!res.ok) throw new Error(json?.message || `Mapbox returned ${res.status}`);
+  } catch (err) {
+    setGeoStatus(`Search failed: ${err.message}`, true);
+    box.className = 'geocode-results';
+    return;
+  }
 
-  box._features = json.features;
+  const feats = (json.features || []).filter(f => f.geometry?.coordinates);
+  if (!feats.length) {
+    setGeoStatus(`No match for "${q}". Try adding the city, or type the coordinates below.`, true);
+    box.className = 'geocode-results';
+    return;
+  }
+
+  setGeoStatus(geoPos ? 'Closest results first.' : 'Click a result to fill in the location.');
+  box.innerHTML = feats.map((f, i) => {
+    const pr = f.properties || {};
+    const d  = pr.distance != null ? geoDist(pr.distance) : '';
+    return `<div class="geo-item" onclick="applyGeo(${i})">
+      <div class="geo-place">${geoEsc(pr.name || 'Unnamed')}${d ? ` <span style="color:var(--blue);font-weight:600">\u00b7 ${d}</span>` : ''}</div>
+      <div class="geo-addr">${geoEsc(pr.full_address || pr.place_formatted || '')}</div>
+    </div>`;
+  }).join('');
+
+  box._features = feats;
   box.className = 'geocode-results show';
 }
 
+function geoDist(m) {
+  const mi = m / 1609.34;
+  return mi < 0.2 ? `${Math.round(m * 3.28084)} ft` : mi < 10 ? `${mi.toFixed(1)} mi` : `${Math.round(mi)} mi`;
+}
+
+function geoEsc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function applyGeo(i) {
-  const f = document.getElementById('geoResults')._features[i];
-  document.getElementById('lat').value = f.center[1].toFixed(8);
-  document.getElementById('lng').value = f.center[0].toFixed(8);
-  if (!document.getElementById('fullName').value) document.getElementById('fullName').value = f.text;
-  if (!document.getElementById('name').value) document.getElementById('name').value = f.text;
-  if (!document.getElementById('rid').value) document.getElementById('rid').value = f.text.toLowerCase().replace(/[^a-z0-9]/g,'');
-  document.getElementById('geoSearch').value = f.place_name;
+  const f    = document.getElementById('geoResults')._features[i];
+  const pr   = f.properties || {};
+  const nm   = pr.name || '';
+  const [lng, lat] = f.geometry.coordinates;
+
+  document.getElementById('lat').value = lat.toFixed(8);
+  document.getElementById('lng').value = lng.toFixed(8);
+  if (!document.getElementById('fullName').value) document.getElementById('fullName').value = nm;
+  if (!document.getElementById('name').value)     document.getElementById('name').value     = nm;
+  if (!document.getElementById('rid').value)      document.getElementById('rid').value      = nm.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0, 20);
+
+  document.getElementById('geoSearch').value = pr.full_address || pr.place_formatted || nm;
   document.getElementById('geoResults').className = 'geocode-results';
+  setGeoStatus(`\u2713 Pinned at ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
 }
 
 document.addEventListener('click', e => {
