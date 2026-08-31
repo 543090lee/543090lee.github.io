@@ -1077,5 +1077,32 @@
     "photos": [
       "sukseongdo.jpg"
     ]
+  },
+  {
+    "name": "선채 용산",
+    "fullName": "선채 용산",
+    "id": "sunchae",
+    "cuisine": "Korean",
+    "category": "Casual Dining",
+    "dish": "Fusion Korean",
+    "date": "8/31/26",
+    "favoriteMenu": "육회 & 묵은지, 수육, 고추마요 감자",
+    "thoughts": "Ordered 육회 & 묵은지, 고추마요 감자, 갈치 솥밥, 수육. 육회 with rice wrapped in 묵은지  went along well together. Potato was crispy and the sauce was good. 갈치 솥밥 was decent, but nothing special. Also, make sure to try 백목련 티 칵테일, has a good distinct flavor.",
+    "location": {
+      "lat": 37.53161913,
+      "lng": 126.97310896
+    },
+    "ratings": {
+      "Flavor & Taste": 8.5,
+      "Service": 7,
+      "Creativity": 7,
+      "Value": 7,
+      "Ambiance": 8
+    },
+    "photos": [
+      "sunchae.jpg",
+      "sunchae_2.jpg",
+      "sunchae_3.jpg"
+    ]
   }
 ]
