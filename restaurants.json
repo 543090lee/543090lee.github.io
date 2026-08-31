@@ -1052,5 +1052,30 @@
       "ohisonijomarket.jpg",
       "ohisonijomarket_2.jpg"
     ]
+  },
+  {
+    "name": "숙성도 판교점",
+    "fullName": "숙성도 판교점",
+    "id": "sukseongdo",
+    "cuisine": "Korean",
+    "category": "Bar & Grill",
+    "dish": "Pork Barbeque",
+    "date": "8/2/26",
+    "favoriteMenu": "Pork shoulder and belly",
+    "thoughts": "Aged pork shoulder and belly were exceptional. Really juicy and pairing was good with 갈치속젓",
+    "location": {
+      "lat": 37.3921049,
+      "lng": 127.11056861
+    },
+    "ratings": {
+      "Flavor & Taste": 8.5,
+      "Service": 7,
+      "Creativity": 6,
+      "Value": 5,
+      "Ambiance": 6
+    },
+    "photos": [
+      "sukseongdo.jpg"
+    ]
   }
 ]
