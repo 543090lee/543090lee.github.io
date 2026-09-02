@@ -1104,5 +1104,33 @@
       "sunchae_2.jpg",
       "sunchae_3.jpg"
     ]
+  },
+  {
+    "name": "티엔미미 강남",
+    "fullName": "티엔미미 강남",
+    "id": "tienmimi",
+    "cuisine": "Chinese",
+    "category": "Casual Dining",
+    "dish": "Dimsum",
+    "date": "9/2/26",
+    "favoriteMenu": "Fish roe dimsum, mala cream shrimp",
+    "thoughts": "Ordered Dimsum set menu. Flavors of Fish roe dimsum and basil dimsum were unique in a good way, i really liked them. Mala cream shrimp had a mild mala flavor, people with low spicy tolerance could handle it. Crispy rice as a topping and the cream sauce paired well.",
+    "location": {
+      "lat": 37.49176194,
+      "lng": 127.02524178
+    },
+    "ratings": {
+      "Flavor & Taste": 8,
+      "Service": 6,
+      "Creativity": 8.5,
+      "Value": 5,
+      "Ambiance": 6.5
+    },
+    "photos": [
+      "tienmimi.jpg",
+      "tienmimi_2.jpg",
+      "tienmimi_3.jpg",
+      "tienmimi_4.jpg"
+    ]
   }
 ]
