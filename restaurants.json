@@ -1132,5 +1132,33 @@
       "tienmimi_3.jpg",
       "tienmimi_4.jpg"
     ]
+  },
+  {
+    "name": "H.T. Grill",
+    "fullName": "H.T. Grill",
+    "id": "htgrill",
+    "cuisine": "American",
+    "category": "Casual Dining",
+    "dish": "American",
+    "date": "9/28/26",
+    "favoriteMenu": "Surf and Turf, Fried Calamari & Shrimp",
+    "thoughts": "Surf and Turf’s steak and lobster were decent, but broccolini as a side was a bit too overcooked. Potatoes were fine. French onion soup and chicken piccata were good. Fried shrimp inside the calamari was solid. Sicilian Lemon and Strawberry cocktail was refreshing.",
+    "location": {
+      "lat": 33.81903652,
+      "lng": -118.38841527
+    },
+    "ratings": {
+      "Flavor & Taste": 7.5,
+      "Service": 7,
+      "Creativity": 5.5,
+      "Value": 5,
+      "Ambiance": 7
+    },
+    "photos": [
+      "htgrill.jpg",
+      "htgrill_2.jpg",
+      "htgrill_3.jpg",
+      "htgrill_4.jpg"
+    ]
   }
 ]
