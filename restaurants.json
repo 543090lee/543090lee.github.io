@@ -1204,5 +1204,33 @@
       "htgrill_3.jpg",
       "htgrill_4.jpg"
     ]
+  },
+  {
+    "name": "Pizzeria Sei",
+    "fullName": "Pizzeria Sei",
+    "id": "pizzeriasei",
+    "cuisine": "Italian",
+    "category": "Casual Dining",
+    "dish": "Pizza",
+    "date": "11/11/26",
+    "favoriteMenu": "Sei margherita and Ma la garden",
+    "thoughts": "Best margherita I’ve ever tried. The dough has a mochi-like texture and really soft. Simple ingredients, but deep favor. Ma la garden flavor was more complex but they mix really well. (Lamb, bell paper, cilantro, tomato and cheese) I loved the creativity here.",
+    "location": {
+      "lat": 34.023007,
+      "lng": -118.41065
+    },
+    "ratings": {
+      "Flavor & Taste": 9,
+      "Service": 7.5,
+      "Creativity": 8,
+      "Value": 5.5,
+      "Ambiance": 7
+    },
+    "stars": 5,
+    "photos": [
+      "pizzeriasei.jpg",
+      "pizzeriasei_2.jpg",
+      "pizzeriasei_3.jpg"
+    ]
   }
 ]
