@@ -1232,5 +1232,33 @@
       "pizzeriasei_2.jpg",
       "pizzeriasei_3.jpg"
     ]
+  },
+  {
+    "name": "Liu's Cafe -",
+    "fullName": "Liu's Cafe - Westwood",
+    "id": "liuscafewestwood",
+    "cuisine": "Taiwanese",
+    "category": "Casual Dining",
+    "dish": "Taiwanese",
+    "date": "11/12/26",
+    "favoriteMenu": "braised pork belly rice and sesame noodle",
+    "thoughts": "Braised pork rice was solid, and pickles on the side made it less greasy. Spicy wontons were milder than I thought, wish it had more umami flavor. Sesame noodle  was really good, not too sweet.",
+    "location": {
+      "lat": 34.06005946,
+      "lng": -118.44608272
+    },
+    "ratings": {
+      "Flavor & Taste": 7.5,
+      "Service": 5,
+      "Creativity": 6,
+      "Value": 8,
+      "Ambiance": 6
+    },
+    "stars": 3,
+    "photos": [
+      "liuscafewestwood.jpg",
+      "liuscafewestwood_2.jpg",
+      "liuscafewestwood_3.jpg"
+    ]
   }
 ]
