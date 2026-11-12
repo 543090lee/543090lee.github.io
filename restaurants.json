@@ -1260,5 +1260,31 @@
       "liuscafewestwood_2.jpg",
       "liuscafewestwood_3.jpg"
     ]
+  },
+  {
+    "name": "Din Tai Fung",
+    "fullName": "Din Tai Fung",
+    "id": "dintaifung",
+    "cuisine": "Taiwanese",
+    "category": "Casual Dining",
+    "dish": "Taiwanese",
+    "date": "11/12/26",
+    "favoriteMenu": "Shrimp & Kurobuta Pork spicy wontons",
+    "thoughts": "Best spicy wontons. Great umami flavor and make sure to try it with rice. Broccoli with garlic is a solid appetizer. Garlic goes so well with broccoli here. Shrimp fried rice is classic, does its job. Also, make sure to try cucumber salad.",
+    "location": {
+      "lat": 34.0581243,
+      "lng": -118.41745947
+    },
+    "ratings": {
+      "Flavor & Taste": 8,
+      "Service": 7,
+      "Creativity": 6.5,
+      "Value": 5.5,
+      "Ambiance": 7
+    },
+    "stars": 4,
+    "photos": [
+      "dintaifung.jpg"
+    ]
   }
 ]
