@@ -143,12 +143,19 @@
     border: 0.5px solid rgba(0,0,0,0.05);
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer;
   }
-  .overall {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--border);
+  .rt-word { grid-column: 2 / 4; margin-top: -10px; font-size: 11px; color: var(--tertiary); }
+
+  /* ── STARS ── */
+  .star-pick { display: flex; gap: 6px; }
+  .star-btn {
+    flex: 1; height: 48px; border: none; border-radius: 12px;
+    background: #F2F2F7; color: #D1D1D6; font-size: 26px; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
-  .overall-lbl { font-size: 12.5px; font-weight: 600; color: var(--secondary); }
-  .overall-val { font-size: 25px; font-weight: 700; letter-spacing: -0.9px; }
+  .star-btn.on { background: #FFF6E0; color: #F2A100; }
+  .star-name { font-size: 15px; font-weight: 700; margin-top: 12px; min-height: 19px; }
+  .star-desc { font-size: 12.5px; color: var(--secondary); line-height: 1.45; margin-top: 2px; }
+  .star-test { font-size: 12px; color: var(--tertiary); font-style: italic; margin-top: 3px; }
 
   /* ── SAVE BAR ── */
   .savebar {
@@ -326,14 +333,19 @@
     </div>
   </div>
 
+  <!-- ── STARS ── -->
+  <div class="card">
+    <div class="sec">Stars · overall verdict</div>
+    <div class="star-pick" id="starPick"></div>
+    <div class="star-name" id="starName">Tap to rate</div>
+    <div class="star-desc" id="starDesc">Is it worth the trip? Decide this on its own, not from the scores below.</div>
+    <div class="star-test" id="starTest"></div>
+  </div>
+
   <!-- ── RATINGS ── -->
   <div class="card">
-    <div class="sec">Ratings</div>
+    <div class="sec">Category scores · 5 is average</div>
     <div id="sliders"></div>
-    <div class="overall">
-      <div class="overall-lbl">Overall</div>
-      <div class="overall-val" id="overall">7.0</div>
-    </div>
   </div>
 
   <!-- ── RECENT ── -->
@@ -474,14 +486,45 @@ function buildSliders() {
       <div class="rt-lbl">${k}</div>
       <input type="range" min="0" max="10" step="0.5" value="7" id="r_${slug(k)}">
       <div class="rt-val" id="v_${slug(k)}">7</div>
+      <div class="rt-word" id="w_${slug(k)}">${scoreWord(7)}</div>
     </div>`).join('');
   RATING_KEYS.forEach(k => {
     $(`r_${slug(k)}`).addEventListener('input', e => {
       $(`v_${slug(k)}`).textContent = Number(e.target.value).toFixed(1).replace(/\.0$/, '');
-      updateOverall();
+      $(`w_${slug(k)}`).textContent = scoreWord(Number(e.target.value));
     });
   });
-  updateOverall();
+}
+
+/* ── Stars (overall verdict, chosen on its own) ── */
+const STAR_TIERS = {
+  5: { name: 'Worth a special trip', desc: "Among the best meals I've had. I'd plan a trip around it.", test: 'Would I fly or drive hours just for this?' },
+  4: { name: 'Worth a detour', desc: 'Excellent and memorable. Worth going out of your way for in its city.', test: 'Would I take a visiting friend here?' },
+  3: { name: 'Worth a visit', desc: "Clearly better than average and good at what it does. Go if you're nearby.", test: 'Would I come back if I were in the area?' },
+  2: { name: 'Average', desc: 'Fine but forgettable. You can find the same thing anywhere.', test: 'Would I go back? Only if it\u2019s convenient.' },
+  1: { name: 'Skip it', desc: 'Disappointing. Something was off with the food, service or price.', test: 'Would I tell a friend not to go?' }
+};
+const SCORE_WORDS = [[10,'Best ever'],[9,'Exceptional'],[8,'Excellent'],[7,'Very good'],[6,'Good'],
+  [5,'Average'],[4,'Below average'],[3,'Poor'],[0,'Bad']];
+function scoreWord(v) { return SCORE_WORDS.find(([min]) => v >= min)[1]; }
+
+let stars = 0;
+function buildStars() {
+  $('starPick').innerHTML = [1, 2, 3, 4, 5].map(n =>
+    `<button type="button" class="star-btn" data-n="${n}" aria-label="${n} star${n > 1 ? 's' : ''}">★</button>`).join('');
+  $('starPick').addEventListener('click', e => {
+    const b = e.target.closest('.star-btn');
+    if (b) setStars(Number(b.dataset.n));
+  });
+}
+function setStars(n) {
+  stars = n;
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('on', Number(b.dataset.n) <= n));
+  const t = STAR_TIERS[n];
+  $('starName').textContent = t ? t.name : 'Tap to rate';
+  $('starDesc').textContent = t ? t.desc : 'Is it worth the trip? Decide this on its own, not from the scores below.';
+  $('starTest').textContent = t ? t.test : '';
+  validate();
 }
 
 function getRatings() {
@@ -490,10 +533,6 @@ function getRatings() {
   return r;
 }
 
-function updateOverall() {
-  const v = Object.values(getRatings());
-  $('overall').textContent = (v.reduce((a, b) => a + b, 0) / v.length).toFixed(1);
-}
 
 // restaurants.json stores dates as M/D/YY
 function toJournalDate(d) {
@@ -731,7 +770,8 @@ function validate() {
           && $('name').value.trim()
           && $('rid').value.trim()
           && !isNaN(parseFloat($('lat').value))
-          && !isNaN(parseFloat($('lng').value));
+          && !isNaN(parseFloat($('lng').value))
+          && stars > 0;
   $('saveBtn').disabled = !ok || saving;
   return ok;
 }
@@ -797,6 +837,7 @@ $('saveBtn').addEventListener('click', async () => {
       thoughts:     $('thoughts').value.trim(),
       location:     { lat: parseFloat($('lat').value), lng: parseFloat($('lng').value) },
       ratings:      getRatings(),
+      stars,
       photos:       photos.map((_, i) => i === 0 ? `${id}.jpg` : `${id}_${i + 1}.jpg`)
     };
 
@@ -866,8 +907,10 @@ function resetForm() {
   $('cuisine').selectedIndex  = 0;
   $('category').selectedIndex = 0;
   $('date').value = new Date().toISOString().slice(0, 10);
-  RATING_KEYS.forEach(k => { $(`r_${slug(k)}`).value = 7; $(`v_${slug(k)}`).textContent = '7'; });
-  updateOverall();
+  RATING_KEYS.forEach(k => {
+    $(`r_${slug(k)}`).value = 7; $(`v_${slug(k)}`).textContent = '7'; $(`w_${slug(k)}`).textContent = scoreWord(7);
+  });
+  setStars(0);
   photos = [];
   renderPhotos();
   $('results').className = 'results';
@@ -896,6 +939,7 @@ async function boot() {
 
 buildSelects();
 buildSliders();
+buildStars();
 renderPhotos();
 $('date').value = new Date().toISOString().slice(0, 10);
 

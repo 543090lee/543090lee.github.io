@@ -19,6 +19,10 @@
       --accent-soft: rgba(232,71,42,0.09);
       --green: #28A745;
       --orange: #D9820A;
+      --star: #F2A100;
+      --tier-5: #B3122E;
+      --tier-4: #E8472A;
+      --tier-3: #E39A0B;
       --border: rgba(0,0,0,0.07);
       --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 5px 20px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
@@ -55,7 +59,7 @@
 
     .brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 
-    .stats-link {
+    .guide-btn {
       flex-shrink: 0;
       display: inline-flex;
       align-items: center;
@@ -65,15 +69,21 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 15px;
+      font-family: var(--font);
       font-size: 12px;
       font-weight: 600;
       color: var(--accent);
-      text-decoration: none;
+      cursor: pointer;
       box-shadow: var(--shadow-sm);
       transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
     }
-    .stats-link svg { width: 13px; height: 13px; }
-    .stats-link:hover { background: var(--accent-soft); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .guide-btn:hover { background: var(--accent-soft); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+    /* ── Stars ── */
+    .stars { display: inline-flex; gap: 1px; line-height: 1; letter-spacing: 0; }
+    .stars .on  { color: var(--star); }
+    .stars .off { color: rgba(0,0,0,0.12); }
+    .stars-unrated { font-size: 12px; color: var(--tertiary); }
 
     .brand-title {
       font-size: 26px;
@@ -304,7 +314,10 @@
     .score-big.lo { color: var(--accent); }
 
     .score-ten { font-size: 11px; color: var(--tertiary); margin-left: 2px; }
-    .card-date { font-size: 11px; color: var(--tertiary); }
+    .card-date { font-size: 11px; color: var(--tertiary); flex-shrink: 0; }
+
+    .card-rating { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .card-rating .stars { font-size: 16px; }
 
     /* ════════════════════════════
        RESIZE HANDLE
@@ -502,32 +515,15 @@
       margin-bottom: 22px;
     }
 
-    .dp-score-num {
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: -2.5px;
-      line-height: 1;
-    }
+    .dp-score-card .stars { font-size: 26px; gap: 2px; flex-shrink: 0; }
+    .dp-score-right { flex: 1; min-width: 0; }
+    .dp-tier { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; color: var(--primary); margin-bottom: 2px; }
+    .dp-tier-desc { font-size: 12.5px; line-height: 1.45; color: var(--secondary); }
 
-    .dp-score-num.hi { color: var(--green); }
-    .dp-score-num.mid { color: var(--orange); }
-    .dp-score-num.lo { color: var(--accent); }
-
-    .dp-score-right { flex: 1; }
-
-    .dp-score-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--tertiary);
-      margin-bottom: 5px;
-    }
-
-    .dp-dots { display: flex; gap: 3px; }
-
-    .dp-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.1); }
-    .dp-dot.on { background: var(--accent); }
+    .dp-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .dp-section-head .dp-section-title { margin-bottom: 0; }
+    .dp-section-hint { font-size: 11px; color: var(--tertiary); }
+    .dp-r-word { font-size: 11.5px; color: var(--tertiary); width: 78px; flex-shrink: 0; white-space: nowrap; }
 
     .dp-section-title {
       font-size: 10.5px;
@@ -702,9 +698,40 @@
 
     .map-pill:hover { transform: scale(1.06); box-shadow: 0 4px 14px rgba(0,0,0,0.22); }
 
-    .map-pill.score-hi  { background: var(--green);  color: white; box-shadow: 0 2px 8px rgba(40,167,69,0.35); }
-    .map-pill.score-mid { background: var(--orange); color: white; box-shadow: 0 2px 8px rgba(217,130,10,0.35); }
-    .map-pill.score-lo  { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(232,71,42,0.35); }
+    .map-pill.tier-5 { background: var(--tier-5); color: white; box-shadow: 0 2px 10px rgba(179,18,46,0.4); }
+    .map-pill.tier-4 { background: var(--tier-4); color: white; box-shadow: 0 2px 8px rgba(232,71,42,0.35); }
+    .map-pill.tier-3 { background: var(--tier-3); color: white; box-shadow: 0 2px 8px rgba(227,154,11,0.35); }
+    .map-pill.tier-2 { background: white; color: var(--primary); }
+    .map-pill.tier-1, .map-pill.tier-0 { background: white; color: var(--tertiary); }
+
+    /* ════════════════════════════
+       "HOW I RATE" GUIDE
+    ════════════════════════════ */
+    .guide-panel { padding: 26px 24px 30px; }
+    .guide-panel .dp-close { background: rgba(0,0,0,0.06); color: var(--secondary); backdrop-filter: none; }
+    .guide-panel .dp-close:hover { background: rgba(0,0,0,0.12); }
+    .guide-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; padding-right: 40px; }
+    .guide-intro { font-size: 13.5px; line-height: 1.55; color: var(--secondary); margin-bottom: 22px; }
+    .guide-h { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--tertiary); margin: 4px 0 10px; }
+    .guide-tier { display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .guide-tier:first-of-type { border-top: none; }
+    .guide-tier .stars { font-size: 14px; width: 82px; flex-shrink: 0; padding-top: 2px; }
+    .guide-tier-name { font-size: 14.5px; font-weight: 700; margin-bottom: 2px; }
+    .guide-tier-desc { font-size: 13px; line-height: 1.5; color: var(--secondary); }
+    .guide-tier-test { font-size: 12.5px; color: var(--tertiary); margin-top: 3px; font-style: italic; }
+    .guide-scale { display: grid; grid-template-columns: 52px 1fr; gap: 5px 10px; font-size: 13px; padding: 12px 14px; background: var(--bg); border-radius: 12px; margin-bottom: 18px; }
+    .guide-scale b { font-weight: 700; color: var(--primary); }
+    .guide-scale span { color: var(--secondary); }
+    .guide-scale b.avg, .guide-scale span.avg { color: var(--accent); font-weight: 700; }
+    .guide-cat { padding: 11px 0; border-top: 1px solid var(--border); }
+    .guide-cat-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .guide-cat-row { font-size: 12.5px; line-height: 1.5; color: var(--secondary); }
+    .guide-cat-row b { color: var(--primary); font-weight: 600; display: inline-block; width: 22px; }
+    .guide-gap { height: 22px; }
+
+    @media (max-width: 768px) {
+      .guide-tier .stars { width: 70px; font-size: 12px; }
+    }
 
     .map-pill.active {
       background: var(--primary) !important;
@@ -820,10 +847,7 @@
           <div class="brand-title">Seungmo's Foodie Journal</div>
           <div class="brand-sub">Places I've eaten, rated, and remembered.</div>
         </div>
-        <a class="stats-link" href="stats.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>
-          Wrapped
-        </a>
+        <button class="guide-btn" id="guideBtn" type="button">★ How I rate</button>
       </div>
     </div>
     <div class="search-wrap">
@@ -914,14 +938,17 @@
       <div class="dp-meta" id="dpMeta"></div>
 
       <div class="dp-score-card">
-        <div class="dp-score-num" id="dpScoreNum"></div>
+        <div id="dpStars"></div>
         <div class="dp-score-right">
-          <div class="dp-score-label">Overall Score</div>
-          <div class="dp-dots" id="dpDots"></div>
+          <div class="dp-tier" id="dpTier"></div>
+          <div class="dp-tier-desc" id="dpTierDesc"></div>
         </div>
       </div>
 
-      <div class="dp-section-title">Rating Breakdown</div>
+      <div class="dp-section-head">
+        <div class="dp-section-title">Category Scores</div>
+        <div class="dp-section-hint">out of 10 · 5 is average</div>
+      </div>
       <div id="dpRatings"></div>
 
       <div class="dp-fav">
@@ -934,6 +961,22 @@
         <div class="dp-notes" id="dpNotes"></div>
       </div>
     </div>
+  </div>
+
+<!-- "How I rate" guide -->
+  <div class="dp-backdrop" id="guideBackdrop"></div>
+  <div class="detail-panel guide-panel" id="guidePanel" role="dialog" aria-labelledby="guideTitle">
+    <button class="dp-close" id="guideClose" aria-label="Close">✕</button>
+    <div class="guide-title" id="guideTitle">How I rate</div>
+    <div class="guide-intro">Every place gets two kinds of rating. <b>Stars</b> are my overall verdict: is it worth the trip? <b>Category scores</b> explain why. Stars are decided on their own, not averaged from the categories, so a great taco stand can earn five stars with a low ambiance score.</div>
+
+    <div class="guide-h">Stars · overall verdict</div>
+    <div id="guideTiers"></div>
+
+    <div class="guide-gap"></div>
+    <div class="guide-h">Category scores · out of 10</div>
+    <div class="guide-scale" id="guideScale"></div>
+    <div id="guideCats"></div>
   </div>
 
 <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
@@ -967,7 +1010,47 @@ function fmtDate(s) {
   return parseDate(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function calcOverall(r) {
+// ── Rating definitions ──────────────────────────
+const STAR_TIERS = {
+  5: { name: 'Worth a special trip', desc: "Among the best meals I've had. I'd plan a trip around it.",
+       test: 'Would I fly or drive hours just for this?' },
+  4: { name: 'Worth a detour', desc: 'Excellent and memorable. Worth going out of your way for in its city.',
+       test: 'Would I take a visiting friend here?' },
+  3: { name: 'Worth a visit', desc: "Clearly better than average and good at what it does. Go if you're nearby.",
+       test: 'Would I come back if I were in the area?' },
+  2: { name: 'Average', desc: 'Fine but forgettable. You can find the same thing anywhere.',
+       test: 'Would I go back? Only if it’s convenient.' },
+  1: { name: 'Skip it', desc: 'Disappointing. Something was off with the food, service or price.',
+       test: 'Would I tell a friend not to go?' }
+};
+
+const SCORE_WORDS = [
+  [10, 'Best ever'], [9, 'Exceptional'], [8, 'Excellent'], [7, 'Very good'], [6, 'Good'],
+  [5, 'Average'], [4, 'Below average'], [3, 'Poor'], [0, 'Bad']
+];
+const SCORE_SCALE = [
+  ['10', "The best I've ever had"], ['9', 'Exceptional'], ['8', 'Excellent'], ['7', 'Very good'],
+  ['6', 'Good, a bit above average'], ['5', 'Average, what you’d expect'], ['4', 'Below average'],
+  ['3', 'Poor'], ['1–2', 'Bad']
+];
+const CATEGORY_GUIDE = {
+  'Flavor & Taste': { 5: 'Tasty enough, what you’d expect from the dish.', 8: "Memorable. I'd crave it later.", 10: "The best version of this I've ever had." },
+  'Service':        { 5: 'Does the job. No problems, nothing extra.', 8: 'Attentive and warm. They made the meal better.', 10: 'Flawless. They anticipate everything.' },
+  'Creativity':     { 5: 'Classic dishes done the usual way (and that can still be great).', 8: "Real ideas, dishes I haven't seen elsewhere.", 10: 'Changed how I think about the cuisine.' },
+  'Value':          { 5: 'A fair price for what you get.', 8: 'Much more than you paid for.', 10: 'Unbelievable for the price.' },
+  'Ambiance':       { 5: "Fine. You don't really notice it.", 8: 'The room is part of the experience.', 10: 'An unforgettable setting.' }
+};
+
+function scoreWord(v) { return SCORE_WORDS.find(([min]) => v >= min)[1]; }
+
+function starsHTML(n) {
+  if (!n) return '<span class="stars-unrated">Not rated yet</span>';
+  return `<span class="stars" aria-label="${n} out of 5 stars">${
+    Array.from({ length: 5 }, (_, i) => `<span class="${i < n ? 'on' : 'off'}">★</span>`).join('')}</span>`;
+}
+
+// Category average — never shown; last-resort tiebreak after stars and flavor
+function catAvg(r) {
   const v = Object.values(r.ratings);
   return v.reduce((a, b) => a + b, 0) / v.length;
 }
@@ -983,8 +1066,6 @@ let travelGeojson = null;
 function buildCards() {
   const list = document.getElementById('restaurantList');
   data.forEach(r => {
-    const sc = r.overall.toFixed(1);
-    const cls = scoreClass(r.overall);
     const emoji = EMOJI[r.cuisine] || '🍽️';
     const catCls = CAT_CLASS[r.category] || 'tag-casual';
 
@@ -1009,9 +1090,12 @@ function buildCards() {
           <div class="card-dish">${r.dish}</div>
         </div>
         <div class="card-footer">
-          <div>
-            <span class="score-big ${cls}" id="card-score-${r.idx}">${sc}</span>
-            <span class="score-ten" id="card-score-lbl-${r.idx}">/ 10</span>
+          <div class="card-rating" id="card-stars-${r.idx}">
+            ${starsHTML(r.stars)}
+          </div>
+          <div id="card-cat-${r.idx}" style="display:none">
+            <span class="score-big" id="card-score-${r.idx}"></span>
+            <span class="score-ten" id="card-score-lbl-${r.idx}"></span>
           </div>
           <div class="card-date">${fmtDate(r.date)}</div>
         </div>
@@ -1090,7 +1174,10 @@ function getFiltered() {
     'ambiance-desc': 'Ambiance'
   };
   res.sort((a, b) => {
-    if (sort === 'score-desc') return b.overall - a.overall;
+    if (sort === 'score-desc') {
+      const flavor = x => x.ratings?.['Flavor & Taste'] ?? 0;
+      return (b.stars || 0) - (a.stars || 0) || flavor(b) - flavor(a) || b.avg - a.avg;
+    }
     if (sort === 'date-desc') return b.dateObj - a.dateObj;
     if (sort === 'date-asc') return a.dateObj - b.dateObj;
     if (sort === 'name-asc') return a.name.localeCompare(b.name);
@@ -1131,24 +1218,24 @@ function render() {
   document.getElementById('noResults').classList.toggle('show', filtered.length === 0);
   markers.forEach(m => { m.getElement().style.opacity = visSet.has(m._idx) ? '1' : '0.3'; });
 
-  // Update card scores to reflect active rating sort
+  // Cards show stars by default; when sorting by a category, show that category's score instead
   const sort = document.getElementById('sortSelect').value;
   const SORT_KEY = { 'flavor-desc':'Flavor & Taste', 'service-desc':'Service',
     'creativity-desc':'Creativity', 'value-desc':'Value', 'ambiance-desc':'Ambiance' };
   const activeKey = SORT_KEY[sort];
   data.forEach(r => {
-    const scoreEl = document.getElementById(`card-score-${r.idx}`);
-    const lblEl   = document.getElementById(`card-score-lbl-${r.idx}`);
-    if (!scoreEl) return;
+    const starsEl = document.getElementById(`card-stars-${r.idx}`);
+    const catEl   = document.getElementById(`card-cat-${r.idx}`);
+    if (!starsEl) return;
+    starsEl.style.display = activeKey ? 'none' : '';
+    catEl.style.display   = activeKey ? '' : 'none';
     if (activeKey) {
       const val = r.ratings?.[activeKey] ?? 0;
+      const scoreEl = document.getElementById(`card-score-${r.idx}`);
       scoreEl.textContent = val.toFixed(1);
       scoreEl.className = `score-big ${scoreClass(val)}`;
-      lblEl.textContent = activeKey === 'Flavor & Taste' ? 'Flavor' : activeKey;
-    } else {
-      scoreEl.textContent = r.overall.toFixed(1);
-      scoreEl.className = `score-big ${scoreClass(r.overall)}`;
-      lblEl.textContent = '/ 10';
+      document.getElementById(`card-score-lbl-${r.idx}`).textContent =
+        (activeKey === 'Flavor & Taste' ? 'Flavor' : activeKey) + ' / 10';
     }
   });
 }
@@ -1201,7 +1288,6 @@ function showCarouselPhoto(photos, idx, emoji) {
 }
 
 function populateDetail(r) {
-  const cls = scoreClass(r.overall);
   const emoji = EMOJI[r.cuisine] || '🍽️';
   const catCls = CAT_CLASS[r.category] || 'tag-casual';
 
@@ -1218,20 +1304,17 @@ function populateDetail(r) {
   document.getElementById('dpName').textContent = r.fullName;
   document.getElementById('dpMeta').textContent = `${r.dish} · ${fmtDate(r.date)}`;
 
-  const scoreEl = document.getElementById('dpScoreNum');
-  scoreEl.textContent = r.overall.toFixed(1);
-  scoreEl.className = `dp-score-num ${cls}`;
-
-  const filled = Math.round(r.overall);
-  document.getElementById('dpDots').innerHTML = Array.from({ length: 10 }, (_, i) =>
-    `<div class="dp-dot${i < filled ? ' on' : ''}"></div>`
-  ).join('');
+  const tier = STAR_TIERS[r.stars];
+  document.getElementById('dpStars').innerHTML = starsHTML(r.stars);
+  document.getElementById('dpTier').textContent = tier ? tier.name : 'Not rated yet';
+  document.getElementById('dpTierDesc').textContent = tier ? tier.desc : '';
 
   document.getElementById('dpRatings').innerHTML = Object.entries(r.ratings).map(([lbl, val]) => `
     <div class="dp-r-row">
       <div class="dp-r-label">${lbl}</div>
       <div class="dp-r-track"><div class="dp-r-fill" style="width:${val * 10}%"></div></div>
       <div class="dp-r-val">${val}</div>
+      <div class="dp-r-word">${scoreWord(val)}</div>
     </div>`).join('');
 
   document.getElementById('dpFavVal').textContent = r.favoriteMenu;
@@ -1292,8 +1375,9 @@ function initMap() {
 
     data.forEach(r => {
       const el = document.createElement('div');
-      el.className = `map-pill score-${scoreClass(r.overall)}`;
-      el.textContent = r.overall.toFixed(1);
+      el.className = `map-pill tier-${r.stars || 0}`;
+      el.textContent = r.stars ? `★ ${r.stars}` : '–';
+      el.title = r.stars ? `${r.name} · ${STAR_TIERS[r.stars].name}` : r.name;
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat([r.location.lng, r.location.lat])
@@ -1304,6 +1388,42 @@ function initMap() {
       markers.push(marker);
     });
   });
+}
+
+// ── "HOW I RATE" GUIDE ──────────────────────────
+function buildGuide() {
+  document.getElementById('guideTiers').innerHTML = [5, 4, 3, 2, 1].map(n => `
+    <div class="guide-tier">
+      ${starsHTML(n)}
+      <div>
+        <div class="guide-tier-name">${STAR_TIERS[n].name}</div>
+        <div class="guide-tier-desc">${STAR_TIERS[n].desc}</div>
+        <div class="guide-tier-test">${STAR_TIERS[n].test}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('guideScale').innerHTML = SCORE_SCALE.map(([s, w]) => {
+    const avg = s === '5' ? ' class="avg"' : '';
+    return `<b${avg}>${s}</b><span${avg}>${w}</span>`;
+  }).join('');
+
+  document.getElementById('guideCats').innerHTML = Object.entries(CATEGORY_GUIDE).map(([cat, g]) => `
+    <div class="guide-cat">
+      <div class="guide-cat-name">${cat}</div>
+      ${[5, 8, 10].map(k => `<div class="guide-cat-row"><b>${k}</b>${g[k]}</div>`).join('')}
+    </div>`).join('');
+}
+
+function openGuide() {
+  document.getElementById('guidePanel').classList.add('open');
+  document.getElementById('guideBackdrop').classList.add('open');
+  document.body.classList.add('detail-open');
+}
+
+function closeGuide() {
+  document.getElementById('guidePanel').classList.remove('open');
+  document.getElementById('guideBackdrop').classList.remove('open');
+  document.body.classList.remove('detail-open');
 }
 
 // ── TRAVEL FEATURE ──────────────────────────────
@@ -1390,15 +1510,24 @@ function clearTravel() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const raw = await fetch('restaurants.json').then(r => r.json());
-  data = raw.map((r, i) => ({ ...r, idx: i, overall: calcOverall(r), dateObj: parseDate(r.date) }));
+  data = raw.map((r, i) => ({ ...r, idx: i, avg: catAvg(r), dateObj: parseDate(r.date) }));
 
   buildCards();
   populateFilters();
   render();
   initMap();
+  buildGuide();
 
   document.getElementById('dpClose').addEventListener('click', closeDetail);
   document.getElementById('dpBackdrop').addEventListener('click', closeDetail);
+  document.getElementById('guideBtn').addEventListener('click', openGuide);
+  document.getElementById('guideClose').addEventListener('click', closeGuide);
+  document.getElementById('guideBackdrop').addEventListener('click', closeGuide);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('guidePanel').classList.contains('open')) closeGuide();
+    else if (activeIdx !== null) closeDetail();
+  });
   document.getElementById('dpPrev').addEventListener('click', () => {
     if (carouselIdx > 0) showCarouselPhoto(carouselPhotos, carouselIdx - 1);
   });

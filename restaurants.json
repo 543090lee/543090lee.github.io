@@ -19,7 +19,8 @@
       "Creativity": 6,
       "Value": 4,
       "Ambiance": 6
-    }
+    },
+    "stars": 3
   },
   {
     "name": "Bacio di Latte",
@@ -41,7 +42,8 @@
       "Creativity": 6,
       "Value": 4,
       "Ambiance": 7
-    }
+    },
+    "stars": 3
   },
   {
     "name": "Fatamorgana Gelato",
@@ -61,6 +63,7 @@
       "Value": 5,
       "Ambiance": 5
     },
+    "stars": 2,
     "favoriteMenu": "Rose Gelato",
     "id": "fatamorganagelato",
     "thoughts": ""
@@ -86,6 +89,7 @@
       "Value": 5,
       "Ambiance": 7
     },
+    "stars": 5,
     "photos": [
       "kali.jpg",
       "kali_2.jpg",
@@ -115,6 +119,7 @@
       "Value": 5,
       "Ambiance": 4
     },
+    "stars": 1,
     "photos": [
       "libertybagel.jpg"
     ]
@@ -140,6 +145,7 @@
       "Value": 5,
       "Ambiance": 4
     },
+    "stars": 2,
     "photos": [
       "magnoliabakery.jpg"
     ]
@@ -165,6 +171,7 @@
       "Value": 3,
       "Ambiance": 6
     },
+    "stars": 2,
     "photos": [
       "lagrande.jpg",
       "lagrande_2.jpg",
@@ -192,6 +199,7 @@
       "Value": 6,
       "Ambiance": 6.5
     },
+    "stars": 3,
     "photos": [
       "mitrthai.jpg",
       "mitrthai_2.jpg"
@@ -218,6 +226,7 @@
       "Value": 7,
       "Ambiance": 8.5
     },
+    "stars": 4,
     "photos": [
       "olymposnaoussa.jpg",
       "olymposnaoussa_2.jpg"
@@ -244,6 +253,7 @@
       "Value": 7,
       "Ambiance": 5.5
     },
+    "stars": 3,
     "photos": [
       "mourga.jpg",
       "mourga_2.jpg",
@@ -272,6 +282,7 @@
       "Value": 4.5,
       "Ambiance": 6
     },
+    "stars": 2,
     "photos": [
       "weissesbruhausimtal.jpg",
       "weissesbruhausimtal_2.jpg"
@@ -298,6 +309,7 @@
       "Value": 5.5,
       "Ambiance": 5.5
     },
+    "stars": 2,
     "photos": [
       "cafebckereimauerersc.jpg"
     ]
@@ -323,6 +335,7 @@
       "Value": 5,
       "Ambiance": 5.5
     },
+    "stars": 3,
     "photos": [
       "shed.jpg"
     ]
@@ -348,6 +361,7 @@
       "Value": 4,
       "Ambiance": 8
     },
+    "stars": 2,
     "photos": [
       "botargo.jpg",
       "botargo_2.jpg"
@@ -374,6 +388,7 @@
       "Value": 6.5,
       "Ambiance": 6
     },
+    "stars": 2,
     "photos": [
       "katiapola.jpg",
       "katiapola_2.jpg"
@@ -400,6 +415,7 @@
       "Value": 6,
       "Ambiance": 5.5
     },
+    "stars": 2,
     "photos": [
       "zangabencantine.jpg",
       "zangabencantine_2.jpg"
@@ -426,6 +442,7 @@
       "Value": 4,
       "Ambiance": 5.5
     },
+    "stars": 3,
     "photos": [
       "awan.jpg",
       "awan_2.jpg"
@@ -452,6 +469,7 @@
       "Value": 5,
       "Ambiance": 7
     },
+    "stars": 3,
     "photos": [
       "houseofmeatballs.jpg"
     ]
@@ -477,6 +495,7 @@
       "Value": 3,
       "Ambiance": 6.5
     },
+    "stars": 3,
     "photos": [
       "kyotowagyutonkatsute.jpg"
     ]
@@ -502,6 +521,7 @@
       "Value": 4.5,
       "Ambiance": 6
     },
+    "stars": 3,
     "photos": [
       "simpangasia.jpg",
       "simpangasia_2.jpg",
@@ -529,6 +549,7 @@
       "Value": 5.5,
       "Ambiance": 5
     },
+    "stars": 2,
     "photos": [
       "tacos1986.jpg"
     ]
@@ -554,6 +575,7 @@
       "Value": 5,
       "Ambiance": 5.5
     },
+    "stars": 3,
     "photos": [
       "pinkshotdogs.jpg"
     ]
@@ -579,6 +601,7 @@
       "Value": 4.5,
       "Ambiance": 8.5
     },
+    "stars": 2,
     "photos": [
       "terraateatalyla.jpg",
       "terraateatalyla_2.jpg",
@@ -607,6 +630,7 @@
       "Value": 4.5,
       "Ambiance": 4.5
     },
+    "stars": 2,
     "photos": [
       "baekamkoreanrestaura.jpg"
     ]
@@ -632,6 +656,7 @@
       "Value": 5.5,
       "Ambiance": 7.5
     },
+    "stars": 2,
     "photos": [
       "hatch.jpg",
       "hatch_2.jpg",
@@ -659,6 +684,7 @@
       "Value": 5,
       "Ambiance": 8
     },
+    "stars": 4,
     "photos": [
       "lalaland.jpg",
       "lalaland_2.jpg",
@@ -686,6 +712,7 @@
       "Value": 4.5,
       "Ambiance": 8.5
     },
+    "stars": 2,
     "photos": [
       "thelakeview.jpg",
       "thelakeview_2.jpg"
@@ -712,6 +739,7 @@
       "Value": 6.5,
       "Ambiance": 7.5
     },
+    "stars": 4,
     "photos": [
       "sushiryeo.jpg",
       "sushiryeo_2.jpg",
@@ -745,6 +773,7 @@
       "Value": 5.5,
       "Ambiance": 7.5
     },
+    "stars": 3,
     "photos": [
       "sushiumi.jpg",
       "sushiumi_2.jpg",
@@ -776,6 +805,7 @@
       "Value": 5.5,
       "Ambiance": 7
     },
+    "stars": 4,
     "photos": [
       "geugyeot.jpg",
       "geugyeot_2.jpg",
@@ -805,6 +835,7 @@
       "Value": 4.5,
       "Ambiance": 7.5
     },
+    "stars": 3,
     "photos": [
       "motherwolf.jpg",
       "motherwolf_2.jpg",
@@ -832,6 +863,7 @@
       "Value": 4.5,
       "Ambiance": 8
     },
+    "stars": 4,
     "photos": [
       "thelittledoor.jpg",
       "thelittledoor_2.jpg",
@@ -864,6 +896,7 @@
       "Value": 4.5,
       "Ambiance": 6.5
     },
+    "stars": 2,
     "photos": [
       "okdongsiknewyork.jpg",
       "okdongsiknewyork_2.jpg"
@@ -890,6 +923,7 @@
       "Value": 4.5,
       "Ambiance": 7
     },
+    "stars": 3,
     "photos": [
       "piccolacucinaestiato.jpg",
       "piccolacucinaestiato_2.jpg",
@@ -917,6 +951,7 @@
       "Value": 9,
       "Ambiance": 8
     },
+    "stars": 4,
     "photos": [
       "gogirimakguksu.jpg"
     ]
@@ -942,6 +977,7 @@
       "Value": 5,
       "Ambiance": 7
     },
+    "stars": 2,
     "photos": [
       "lephante.jpg",
       "lephante_2.jpg",
@@ -970,6 +1006,7 @@
       "Value": 5.5,
       "Ambiance": 7.5
     },
+    "stars": 5,
     "photos": [
       "loquita.jpg",
       "loquita_2.jpg",
@@ -998,6 +1035,7 @@
       "Value": 5.5,
       "Ambiance": 8.5
     },
+    "stars": 3,
     "photos": [
       "mido.jpg"
     ]
@@ -1023,6 +1061,7 @@
       "Value": 4.5,
       "Ambiance": 5
     },
+    "stars": 2,
     "photos": [
       "beefcutletotarukuros.jpg"
     ]
@@ -1048,6 +1087,7 @@
       "Value": 5,
       "Ambiance": 5.5
     },
+    "stars": 3,
     "photos": [
       "ohisonijomarket.jpg",
       "ohisonijomarket_2.jpg"
@@ -1074,6 +1114,7 @@
       "Value": 5,
       "Ambiance": 6
     },
+    "stars": 3,
     "photos": [
       "sukseongdo.jpg"
     ]
@@ -1099,6 +1140,7 @@
       "Value": 7,
       "Ambiance": 8
     },
+    "stars": 3,
     "photos": [
       "sunchae.jpg",
       "sunchae_2.jpg",
@@ -1126,6 +1168,7 @@
       "Value": 5,
       "Ambiance": 6.5
     },
+    "stars": 4,
     "photos": [
       "tienmimi.jpg",
       "tienmimi_2.jpg",
@@ -1154,6 +1197,7 @@
       "Value": 5,
       "Ambiance": 7
     },
+    "stars": 2,
     "photos": [
       "htgrill.jpg",
       "htgrill_2.jpg",
